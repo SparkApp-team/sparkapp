@@ -9,9 +9,9 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.sparkapp</groupId>
-	<artifactId>backend</artifactId>
+	<artifactId>sparkapi</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>backend</name>
+	<name>sparkapi</name>
 	<description>Demo project for Spring Boot</description>
 	<url/>
 	<licenses>

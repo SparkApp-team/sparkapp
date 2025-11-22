@@ -1,13 +1,13 @@
-package com.sparkapp.backend;
+package com.sparkapp.sparkapi;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class BackendApplication {
+public class SparkapiApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(BackendApplication.class, args);
+		SpringApplication.run(SparkapiApplication.class, args);
 	}
 
 }
