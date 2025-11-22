@@ -1,0 +1,44 @@
+# Xcode
+.DS_Store
+*.xcodeproj/project.xcworkspace/xcuserdata/
+*.xcodeproj/xcuserdata/
+*.xcworkspace/xcuserdata/
+DerivedData/
+build/
+*.hmap
+*.ipa
+*.app
+*.dSYM
+*.o
+*.lo
+*.la
+*.so
+*.dylib
+*.a
+*.bak
+*.swp
+*.swo
+*.pyc
+*.pyo
+*.pbxuser
+*.mode1v3
+*.perspectivev3
+*.xcscheme
+xcuserdata/
+xcshareddata/
+# Swift Package Manager
+.build/
+Packages/
+Package.pins
+Package.resolved
+# CocoaPods
+Pods/
+# Carthage
+Carthage/
+# Fastlane
+fastlane/report.xml
+fastlane/screenshots/
+# Other
+.swiftpm/
+# Logs
+*.log
