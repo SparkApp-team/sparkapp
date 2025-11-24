@@ -1,0 +1,54 @@
+type: collection.insomnia.rest/5.0
+schema_version: "5.1"
+name: SparkAPI
+meta:
+  id: wrk_c9cb034e595642ba8006014ccda677fa
+  created: 1764009813412
+  modified: 1764009813412
+  description: ""
+collection:
+  - url: http://localhost:8080/health
+    name: ""
+    meta:
+      id: req_508d15060e314ebe8990fac470070c20
+      created: 1764009866168
+      modified: 1764010099724
+      isPrivate: false
+      description: ""
+      sortKey: -1764009866168
+    method: GET
+    headers:
+      - name: User-Agent
+        value: insomnia/12.1.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+cookieJar:
+  name: Default Jar
+  meta:
+    id: jar_8f7d6b6a4a0cb452bcd6d456ab84461bc2f55ba8
+    created: 1764009813416
+    modified: 1764009901563
+  cookies:
+    - id: 9f88daa4-c782-4fc8-ba94-abf18f14d2a3
+      key: JSESSIONID
+      value: 19F120BF24A7A000ADCD6A33A65DA6D9
+      domain: localhost
+      path: /
+      secure: false
+      httpOnly: true
+      hostOnly: true
+environments:
+  name: Base Environment
+  meta:
+    id: env_8f7d6b6a4a0cb452bcd6d456ab84461bc2f55ba8
+    created: 1764009813414
+    modified: 1764009813414
+    isPrivate: false
