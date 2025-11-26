@@ -60,8 +60,3 @@ struct FloatingSecureTextField: View {
         .padding(.top, 12)
     }
 }
-
-#Preview {
-    @Previewable @State var text: String = ""
-    FloatingSecureTextField(placeholder: "placeholder", text: $text)
-}
