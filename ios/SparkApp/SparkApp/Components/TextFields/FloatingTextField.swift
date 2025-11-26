@@ -52,9 +52,3 @@ struct FloatingTextField: View {
         .padding(.top, 12)
     }
 }
-
-#Preview {
-    @Previewable @State var text: String = ""
-    //FloatingTextField(leftIcon: "person", placeholder: "placeholder", text: $text)
-    FloatingTextField(placeholder: "placeholder", text: $text)
-}

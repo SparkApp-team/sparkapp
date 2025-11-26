@@ -9,7 +9,7 @@ import SwiftUI
 
 struct EmptyView: View {
     var body: some View {
-        Text("You are logged in!")
+        Text("Registration.")
             .font(.largeTitle)
             .padding()
     }

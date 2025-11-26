@@ -13,10 +13,19 @@ import SwiftUI
 //3. design
 
 struct LoginView: View {
+    
+    enum Field {
+        case email
+        case password
+    }
+    
+    @Binding var isLoggedIn: Bool
+    
     @State var email: String = ""
     @State var password: String = ""
     
-    @State private var navigateToHome = false
+    @State private var navigateToRegister = false
+    @FocusState private var focusedField: Field?
     
     var body: some View {
         NavigationStack {
@@ -50,7 +59,7 @@ struct LoginView: View {
             .safeAreaInset(edge: .bottom) {
                 VStack(spacing: 20) {
                     Button {
-                        goToNextScreen()
+                        isLoggedIn = true
                     } label: {
                         Text("Login")
                             .padding(20)
@@ -65,7 +74,7 @@ struct LoginView: View {
                             .font(.callout)
                         
                         Button {
-                            //TODO: register
+                            goToRegister()
                         } label: {
                             Text("Register Now")
                                 .foregroundStyle(.blue)
@@ -78,18 +87,13 @@ struct LoginView: View {
                 .padding(.bottom, 6)
                 .background(.ultraThinMaterial)
             }
-            .navigationDestination(isPresented: $navigateToHome) {
+            .navigationDestination(isPresented: $navigateToRegister) {
                 EmptyView()
             }
         }
     }
     
-    private func goToNextScreen() {
-        navigateToHome = true
+    private func goToRegister() {
+        navigateToRegister = true
     }
-}
-
-
-#Preview {
-    LoginView()
 }

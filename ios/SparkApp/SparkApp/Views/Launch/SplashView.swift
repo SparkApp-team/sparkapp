@@ -14,9 +14,15 @@ struct SplashView: View {
     @State private var titleText = ""
     private let fullTitle = "SparkApp"
     
+    @State private var isLoggedIn = false
+    
     var body: some View {
         if (isActive) {
-            ContentView()
+            if isLoggedIn {
+                ContentView()
+            } else {
+                LoginView(isLoggedIn: $isLoggedIn)
+            }
         } else {
             ZStack(alignment: .center) {
                 Color(.logoBackground)
