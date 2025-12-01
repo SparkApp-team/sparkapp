@@ -34,6 +34,7 @@ struct LoginView: View {
                     Text("")
                     
                     Text("Welcome back! Glad to see you, Again!")
+                        .foregroundStyle(AppColors.P2.textPrimary)
                         .font(.title)
                         .padding(.top, 40)
                     
@@ -55,7 +56,9 @@ struct LoginView: View {
                 }
                 .padding(.horizontal)
             }
+            .scrollContentBackground(.hidden)
             .scrollIndicators(.hidden)
+            .background(AppColors.P2.background)
             .safeAreaInset(edge: .bottom) {
                 VStack(spacing: 20) {
                     Button {
@@ -63,21 +66,24 @@ struct LoginView: View {
                     } label: {
                         Text("Login")
                             .padding(20)
-                            .foregroundStyle(.white)
+                            .foregroundStyle(AppColors.P2.background)
+                            .font(.title2)
+                            .fontWeight(.semibold)
                             .frame(maxWidth: .infinity)
-                            .background(.black)
+                            .background(AppColors.P2.primary)
                             .clipShape(RoundedRectangle(cornerRadius: 15))
                     }
                     
                     HStack {
                         Text("Don't have an account?")
+                            .foregroundStyle(AppColors.P2.textSecondary)
                             .font(.callout)
                         
                         Button {
                             goToRegister()
                         } label: {
                             Text("Register Now")
-                                .foregroundStyle(.blue)
+                                .foregroundStyle(AppColors.P2.secondary)
                         }
                         .offset(x: -4)
                     }
@@ -85,7 +91,6 @@ struct LoginView: View {
                 .padding(.horizontal)
                 .padding(.top, 12)
                 .padding(.bottom, 6)
-                .background(.ultraThinMaterial)
             }
             .navigationDestination(isPresented: $navigateToRegister) {
                 EmptyView()
@@ -96,4 +101,9 @@ struct LoginView: View {
     private func goToRegister() {
         navigateToRegister = true
     }
+}
+
+#Preview {
+    @Previewable @State var logged: Bool = false
+    LoginView(isLoggedIn: $logged, email: "", password: "")
 }

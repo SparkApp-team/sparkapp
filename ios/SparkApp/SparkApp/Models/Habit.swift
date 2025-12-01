@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct Habit: Identifiable, Codable, Hashable {
+struct Habit: Identifiable, Equatable, Codable, Hashable {
     var id: String
     var userId: String = "user1"
     

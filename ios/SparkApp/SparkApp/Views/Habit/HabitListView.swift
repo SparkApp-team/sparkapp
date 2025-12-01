@@ -9,9 +9,16 @@ import SwiftUI
 
 //Fix:
 //1. normal loading animation + background
+//2. think about secondary background color
+//3. border for list
 
 struct HabitListView: View {
     @StateObject private var viewModel = HabitViewModel()
+    
+    init() {
+        UINavigationBar.appearance().largeTitleTextAttributes = [.foregroundColor: AppColors.P2.textPrimary.uiColor]
+        UINavigationBar.appearance().titleTextAttributes = [.foregroundColor: AppColors.P2.textPrimary.uiColor]
+    }
     
     var body: some View {
         NavigationStack {
@@ -20,17 +27,30 @@ struct HabitListView: View {
                     VStack {
                         ProgressView()
                         Text("Loading habits...")
+                            .foregroundStyle(AppColors.P2.textPrimary)
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else {
-                    List(viewModel.habits) { habit in
-                        Text(habit.name)
+                    List {
+                        ForEach(viewModel.habits) { habit in
+                            HStack {
+                                Text(habit.name)
+                                    .foregroundColor(AppColors.P2.textPrimary)
+                                Spacer()
+                            }
+                            .listRowBackground(
+                                AppColors.P2.secondaryBackground
+                            )
+                        }
                     }
+                    .scrollContentBackground(.hidden)
+                    .listStyle(.insetGrouped)
                 }
             }
             .navigationTitle("Habits")
+            .background(AppColors.P2.background)
             .task {
                 await viewModel.loadHabits()
             }
@@ -39,4 +59,8 @@ struct HabitListView: View {
             }
         }
     }
+}
+
+#Preview {
+    HabitListView()
 }

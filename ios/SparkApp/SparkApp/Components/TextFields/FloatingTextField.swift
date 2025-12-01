@@ -25,25 +25,26 @@ struct FloatingTextField: View {
             HStack {
                 if let icon = leftIcon {
                     Image(systemName: icon)
-                        .foregroundStyle(Color.secondary)
+                        .foregroundStyle(AppColors.P2.textSecondary)
                 }
                 
                 TextField("", text: $text)
+                    .foregroundStyle(AppColors.P2.textPrimary)
                     .focused($isFocused)
                     .frame(height: 22)
                 
                 if let icon = rightIcon {
                     Image(systemName: icon)
-                        .foregroundStyle(Color.secondary)
+                        .foregroundStyle(AppColors.P2.textSecondary)
                 }
             }
             .padding()
             .background(RoundedRectangle(cornerRadius: 8)
-                .stroke(Color.black))
+                .stroke(AppColors.P2.textSecondary))
             
             Text(placeholder)
-                .foregroundStyle(Color.secondary)
-                .background(Color(UIColor.systemBackground).padding(-3))
+                .foregroundStyle(AppColors.P2.textSecondary)
+                .background(AppColors.P2.background).padding(-3)
                 .offset(x: isFloated ? (leftIcon != nil ? 15 : 15) : (leftIcon != nil ? 45 : 15))
                 .offset(y:isFloated ? -30 : 0)
                 .animation(.easeInOut(duration: 0.22), value: isFloated)
@@ -51,4 +52,9 @@ struct FloatingTextField: View {
         }
         .padding(.top, 12)
     }
+}
+
+#Preview {
+    @Previewable @State var text: String = ""
+    FloatingTextField(leftIcon: "person.fill", rightIcon: nil, placeholder: "sometext", text: $text)
 }
