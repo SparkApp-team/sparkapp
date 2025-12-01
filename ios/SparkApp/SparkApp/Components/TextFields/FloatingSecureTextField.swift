@@ -26,14 +26,16 @@ struct FloatingSecureTextField: View {
             HStack {
                 if(leftIcon != nil) {
                     Image(systemName: leftIcon ?? "person")
-                        .foregroundStyle(Color.secondary)
+                        .foregroundStyle(AppColors.P2.textSecondary)
                 }
                 
                 ZStack {
                     SecureField("", text: $text)
+                        .foregroundStyle(AppColors.P2.textPrimary)
                         .opacity(isSecure ? 0 : 1)
                         .focused($isFocused)
                     TextField("", text: $text)
+                        .foregroundStyle(AppColors.P2.textPrimary)
                         .opacity(isSecure ? 1 : 0)
                         .focused($isFocused)
                 }
@@ -42,16 +44,16 @@ struct FloatingSecureTextField: View {
                     isSecure.toggle()
                 } label: {
                     Image(systemName: isSecure ? "eye.slash.fill" : "eye.fill")
-                        .foregroundStyle(Color.secondary)
+                        .foregroundStyle(AppColors.P2.textSecondary)
                 }
             }
             .padding()
             .background(RoundedRectangle(cornerRadius: 8)
-                .stroke(Color.black))
+                .stroke(AppColors.P2.textSecondary))
             
             Text(placeholder)
-                .foregroundStyle(Color.secondary)
-                .background(Color(UIColor.systemBackground).padding(-3))
+                .foregroundStyle(AppColors.P2.textSecondary)
+                .background(AppColors.P2.background).padding(-3)
                 .offset(x: isFloated ? (leftIcon != nil ? 15 : 15) : (leftIcon != nil ? 45 : 15))
                 .offset(y:isFloated ? -30 : 0)
                 .animation(.easeInOut(duration: 0.22), value: isFloated)
