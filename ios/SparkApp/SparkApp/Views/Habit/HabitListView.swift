@@ -29,7 +29,6 @@ struct HabitListView: View {
                         Text("Loading habits...")
                             .foregroundStyle(AppColors.P2.textPrimary)
                             .font(.subheadline)
-                            .foregroundStyle(.secondary)
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else {
@@ -53,9 +52,25 @@ struct HabitListView: View {
             .background(AppColors.P2.background)
             .task {
                 await viewModel.loadHabits()
+                await viewModel.getStatus(showAlert: false)
             }
             .refreshable {
                 await viewModel.refresh()
+            }
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        Task { await viewModel.getStatus() }
+                    } label: {
+                        Label("Status", systemImage: "checkmark.icloud.fill")
+                    }
+                    .tint(viewModel.status?.color)
+                }
+            }
+            .alert("Server Status", isPresented: $viewModel.showStatusAlert) {
+                Button("OK", role: .cancel) { }
+            } message: {
+                Text(viewModel.status?.status ?? viewModel.errorMessage ?? "Unknown")
             }
         }
     }

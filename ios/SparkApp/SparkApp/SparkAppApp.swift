@@ -17,6 +17,7 @@ struct SparkAppApp: App {
                         KeyboardWarmup.warmupInBackground()
                     }
                 }
+                .preferredColorScheme(.light)
         }
     }
 }
