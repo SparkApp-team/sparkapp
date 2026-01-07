@@ -1,5 +1,5 @@
 //
-//  Status.swift
+//  ServerStatus.swift
 //  SparkApp
 //
 //  Created by Dmitro Kryzhanovsky on 02.12.2025.
@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-struct Status: Codable {
+struct ServerStatus: Codable {
     let status: String
     
     var color: Color {

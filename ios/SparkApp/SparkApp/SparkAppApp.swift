@@ -11,12 +11,7 @@ import SwiftUI
 struct SparkAppApp: App {
     var body: some Scene {
         WindowGroup {
-            SplashView()
-                .onAppear {
-                    DispatchQueue.main.async {
-                        KeyboardWarmup.warmupInBackground()
-                    }
-                }
+            AppView()
                 .preferredColorScheme(.light)
         }
     }
