@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct AppView: View {
-    @State var appState: AppState = AppState()
+    @Environment(AppState.self) private var appState
     
     var body: some View {
         AppViewBuilder(
@@ -23,18 +23,25 @@ struct AppView: View {
                 HabitsView()
             }
         )
-        .environment(appState)
     }
 }
 
+
+
 #Preview("Launch") {
-    AppView(appState: AppState(option: .launch))
+    AppView()
+        .environment(AppState(option: .launch))
+        .previewEnvironment()
 }
 
 #Preview("Auth") {
-    AppView(appState: AppState(option: .auth))
+    AppView()
+        .environment(AppState(option: .auth))
+        .previewEnvironment()
 }
 
 #Preview("Content") {
-    AppView(appState: AppState(option: .content))
+    AppView()
+        .environment(AppState(option: .content))
+        .previewEnvironment()
 }

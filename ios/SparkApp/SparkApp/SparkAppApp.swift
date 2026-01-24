@@ -9,10 +9,80 @@ import SwiftUI
 
 @main
 struct SparkAppApp: App {
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
+    
     var body: some Scene {
         WindowGroup {
             AppView()
-                .preferredColorScheme(.light)
+                .environment(delegate.dependencies.sparkManager)
+                .environment(delegate.dependencies.habitManager)
         }
+    }
+}
+
+class AppDelegate: NSObject, UIApplicationDelegate {
+    
+    var dependencies: AppDependencies!
+    
+    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
+        let config: BuildConfiguration
+        
+        #if MOCK
+        config = .mock(isSignedIn: true)
+        #elseif DEV
+        config = .dev
+        #else
+        config = .prod
+        #endif
+        
+        config.configure()
+        dependencies = AppDependencies(config)
+        return true
+    }
+}
+
+enum BuildConfiguration {
+    case mock(isSignedIn: Bool), dev, prod
+    
+    // For dev + prod add a configurations for api.
+    func configure() {
+        switch self {
+        case .mock:
+            break
+        case .dev:
+            break
+        case .prod:
+            break
+        }
+    }
+}
+
+@MainActor
+struct AppDependencies {
+    
+    let sparkManager: SparkManager
+    let habitManager: HabitManager
+    
+    init(_ config: BuildConfiguration) {
+        switch config {
+        case .mock:
+            sparkManager = SparkManager(service: MockSparkService())
+            habitManager = HabitManager(service: MockHabitService())
+        case .dev:
+            sparkManager = SparkManager(service: SparkServerService())
+            habitManager = HabitManager(service: SparkHabitService())
+        case .prod:
+            sparkManager = SparkManager(service: SparkServerService())
+            habitManager = HabitManager(service: SparkHabitService())
+        }
+    }
+}
+
+extension View {
+    func previewEnvironment(isSignedIn: Bool = true) -> some View {
+        self
+            .environment(SparkManager(service: MockSparkService()))
+            .environment(HabitManager(service: MockHabitService()))
+            .environment(AppState())
     }
 }

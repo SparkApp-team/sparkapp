@@ -1,22 +1,17 @@
 //
-//  ApiClient.swift
+//  SparkServerService.swift
 //  SparkApp
 //
-//  Created by Dmitro Kryzhanovsky on 02.12.2025.
+//  Created by Dmitro Kryzhanovsky on 24.01.2026.
 //
 
+import SwiftUI
 
-import Foundation
-
-final class ApiClient {
-    static let shared = ApiClient()
-    private init() {}
-    
+struct SparkServerService: SparkService {
     private let baseURL = URL(string: "http://localhost:8080")!
     private let session: URLSession = .shared
     
-    //Status
-    func getStatus() async throws -> String {
+    func getServerStatus() async throws -> ServerStatus {
         let url = baseURL.appendingPathComponent("health")
         
         var request = URLRequest(url: url)
@@ -34,8 +29,7 @@ final class ApiClient {
             throw URLError(.cannotDecodeContentData)
         }
         
-        return responseString.trimmingCharacters(in: .whitespacesAndNewlines)
-        
+        return ServerStatus(status: responseString.trimmingCharacters(in: .whitespacesAndNewlines))
         //return try JSONDecoder().decode(String.self, from: data)
     }
 }

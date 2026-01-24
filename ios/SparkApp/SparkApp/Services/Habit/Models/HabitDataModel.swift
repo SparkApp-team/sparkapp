@@ -7,17 +7,17 @@
 
 import SwiftUI
 
-enum HabitType: String, CaseIterable, Hashable {
+enum HabitDataType: String, CaseIterable, Hashable {
     case boolean
     case counter
 }
 
-struct HabitModel: Hashable {
+struct HabitDataModel: Hashable {
     let id: String
     let userId: String?
     let name: String?
     let description: String?
-    let type: HabitType?
+    let type: HabitDataType?
     let createdAt: Date?
     let updatedAt: Date?
     
@@ -26,7 +26,7 @@ struct HabitModel: Hashable {
         userId: String? = nil,
         name: String? = nil,
         description: String? = nil,
-        type: HabitType? = nil,
+        type: HabitDataType? = nil,
         createdAt: Date? = nil,
         updatedAt: Date? = nil
     ) {
@@ -39,11 +39,11 @@ struct HabitModel: Hashable {
         self.updatedAt = updatedAt
     }
     
-    static var mock: HabitModel { mocks[0] }
+    static var mock: HabitDataModel { mocks[0] }
     
-    static var mocks: [HabitModel] {
+    static var mocks: [HabitDataModel] {
         [
-            HabitModel(
+            HabitDataModel(
                 id: "habit_1",
                 userId: "user_1",
                 name: "Drink Water",
@@ -53,7 +53,7 @@ struct HabitModel: Hashable {
                 updatedAt: Date().addingTimeInterval(-86400)
             ),
             
-            HabitModel(
+            HabitDataModel(
                 id: "habit_2",
                 userId: "user_1",
                 name: "Push-ups",
@@ -63,7 +63,7 @@ struct HabitModel: Hashable {
                 updatedAt: Date().addingTimeInterval(-86400 * 2)
             ),
             
-            HabitModel(
+            HabitDataModel(
                 id: "habit_3",
                 userId: "user_1",
                 name: "Read a Book",

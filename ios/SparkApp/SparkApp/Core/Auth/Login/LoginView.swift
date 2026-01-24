@@ -8,17 +8,15 @@
 import SwiftUI
 
 struct LoginView: View {
+    @Environment(AppState.self) private var root
     
     private enum Field {
         case email
         case password
     }
     
-    @Environment(AppState.self) private var root
-    
     @State var email: String = ""
     @State var password: String = ""
-    
     //@FocusState private var focusedField: Field?
     
     var body: some View {

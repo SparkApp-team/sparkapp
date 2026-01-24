@@ -9,7 +9,11 @@ import SwiftUI
 
 struct HabitsView: View {
     
-    @State private var habits: [HabitModel] = HabitModel.mocks //[]
+    @Environment(SparkManager.self) private var sparkManager
+    @Environment(HabitManager.self) private var habitManager
+    
+    @State private var status: ServerStatus = .goodMock
+    @State private var habits: [HabitDataModel] = []
     @State private var isLoading: Bool = false
     
     var body: some View {
@@ -18,14 +22,18 @@ struct HabitsView: View {
                 AppColors.P2.background
                     .ignoresSafeArea()
                 
-                Group {
-                    if isLoading {
-                        loadingHabitsView
-                    } else {
-                        if habits.isEmpty {
-                            emptyHabitsView
+                if status != .ok {
+                    badServerStatus
+                } else {
+                    Group {
+                        if isLoading {
+                            loadingHabitsView
                         } else {
-                            habitsView
+                            if habits.isEmpty {
+                                emptyHabitsView
+                            } else {
+                                habitsView
+                            }
                         }
                     }
                 }
@@ -36,6 +44,26 @@ struct HabitsView: View {
                     serverStatusButton
                 }
             }
+            .task {
+                await checkServerStatus()
+                await loadHabits()
+            }
+        }
+    }
+    
+    private func loadHabits() async {
+        do {
+            habits = try await habitManager.getHabitsForUser(userId: "")
+        } catch {
+            print("Error loading habits: \(error)")
+        }
+    }
+    
+    private func checkServerStatus() async {
+        do {
+            status = try await sparkManager.getServerStatus()
+        } catch {
+            print("Error checking server status: \(error)")
         }
     }
     
@@ -75,15 +103,38 @@ struct HabitsView: View {
             .padding(40)
     }
     
+    private var badServerStatus: some View {
+        Text("Could not connect. Check your internet connection or try again later.")
+            .foregroundStyle(AppColors.P2.textSecondary)
+            .font(.title3)
+            .frame(maxWidth: .infinity)
+            .multilineTextAlignment(.center)
+            .padding(40)
+    }
+    
     private var serverStatusButton: some View {
         Button {
-            // action
+            Task { await checkServerStatus() }
         } label: {
             Label("Status", systemImage: "checkmark.icloud.fill")
         }
+        .tint(status.color)
     }
 }
 
-#Preview {
+#Preview("Has data") {
     HabitsView()
+        .previewEnvironment()
+}
+
+#Preview("No data") {
+    HabitsView()
+        .environment(HabitManager(service: MockHabitService(habits: [])))
+        .previewEnvironment()
+}
+
+#Preview("Bad status") {
+    HabitsView()
+        .environment(SparkManager(service: MockSparkService(status: .badMock)))
+        .previewEnvironment()
 }
