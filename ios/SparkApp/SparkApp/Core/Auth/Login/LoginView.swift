@@ -9,29 +9,66 @@ import SwiftUI
 
 struct LoginView: View {
     @Environment(AppState.self) private var root
-    
+    @Environment(SparkManager.self) private var sparkManager
+
     private enum Field {
         case email
         case password
     }
-    
+
     @State var email: String = ""
     @State var password: String = ""
+    #if DEBUG
+    @State private var selectedEnvironment: APIEnvironment = .current
+    #endif
     //@FocusState private var focusedField: Field?
-    
+
     var body: some View {
         NavigationStack {
             VStack {
                 ScrollView {
                     loginForm
                 }
-                
+
                 ctaButtons
             }
             .background(AppColors.P2.background)
+            #if DEBUG
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    devMenu
+                }
+            }
+            #endif
         }
     }
-    
+
+    #if DEBUG
+    private var devMenu: some View {
+        Menu {
+            ForEach(APIEnvironment.allCases, id: \.self) { env in
+                Button {
+                    selectEnvironment(env)
+                } label: {
+                    if env == selectedEnvironment {
+                        Label(env.rawValue, systemImage: "checkmark")
+                    } else {
+                        Text(env.rawValue)
+                    }
+                }
+            }
+        } label: {
+            Label("Dev Menu", systemImage: "hammer.fill")
+        }
+    }
+
+    private func selectEnvironment(_ env: APIEnvironment) {
+        selectedEnvironment = env
+        APIEnvironment.current = env
+        sparkManager.service = SparkServerService(environment: env)
+    }
+    #endif
+
     private var loginForm: some View {
         VStack(alignment: .leading, spacing: 40) {
             Text("Welcome back! Glad to see you, Again!")
@@ -93,4 +130,5 @@ struct LoginView: View {
 #Preview {
     LoginView(email: "", password: "")
         .environment(AppState())
+        .previewEnvironment()
 }
