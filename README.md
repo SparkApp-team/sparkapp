@@ -84,16 +84,39 @@ mvn spring-boot:run
 
 Docker support is for the Spring Boot backend. The iOS app is not Dockerized because it requires Xcode/macOS tooling.
 
-From the repository root, build and start the backend container:
+The Docker setup also starts an ngrok tunnel so the backend can be reached from the Swift app through a stable HTTPS URL.
+
+Before starting Docker, create a local `.env` file from the example:
+
+```
+cp .env.example .env
+```
+
+Fill in your own ngrok values:
+
+```
+NGROK_AUTHTOKEN=your-ngrok-authtoken
+NGROK_DOMAIN=your-stable-domain.ngrok-free.app
+```
+
+Do not commit `.env`. Each developer should use their own ngrok token and reserved domain.
+
+From the repository root, build and start the backend and tunnel containers:
 
 ```
 docker compose up -d --build
 ```
 
-The API will be available at:
+The API will be available locally at:
 
 ```
 http://localhost:8081
+```
+
+The same API will be available remotely at:
+
+```
+https://your-stable-domain.ngrok-free.app
 ```
 
 Check the running service:
@@ -102,13 +125,19 @@ Check the running service:
 docker compose ps
 ```
 
-Follow backend logs:
+Follow backend and tunnel logs:
 
 ```
 docker compose logs -f
 ```
 
-Stop the backend container:
+The ngrok local inspector is available at:
+
+```
+http://localhost:4040
+```
+
+Stop the containers:
 
 ```
 docker compose down
@@ -124,13 +153,18 @@ This exposes:
 
 ```
 8081  # backend API
+4040  # ngrok inspector
 5005  # JVM debug port
 ```
 
 ### iOS
 
 Navigate into `ios/` and open the Xcode project.
-Run directly from Xcode.
+Run directly from Xcode. For testing against Docker from a device or simulator, the debug API base URL should use the stable ngrok HTTPS URL from your `.env`:
+
+```
+https://your-stable-domain.ngrok-free.app
+```
 
 ---
 

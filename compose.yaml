@@ -6,3 +6,12 @@ services:
       dockerfile: Dockerfile
     ports:
       - 8081:8081
+  ngrok:
+    image: ngrok/ngrok:latest
+    depends_on:
+      - sparkapp
+    environment:
+      NGROK_AUTHTOKEN: ${NGROK_AUTHTOKEN}
+    command: http --domain=${NGROK_DOMAIN} sparkapp:8081
+    ports:
+      - 4040:4040
