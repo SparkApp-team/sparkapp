@@ -40,7 +40,7 @@ Response fields:
 ### `POST /users`
 
 Purpose:
-Creates a mocked user response from the provided email. This endpoint does not persist users yet.
+Creates a user from the provided email and persists it through the JPA `UserRepository`.
 
 Request:
 
@@ -54,7 +54,8 @@ Example request:
 }
 ```
 Request fields:
-- `email` (`string`): Email address for the mocked user.
+
+- `email` (`string`): Email address for the user.
 
 Response:
 
@@ -72,10 +73,11 @@ Example response:
 
 Response fields:
 
-- `id` (`string`): Mocked user ID.
+- `id` (`string`): Generated user ID.
 - `email` (`string`): User email.
 
 ## Notes
 
-```md
-- This API is in an early stage and currently exposes health checks and mocked user creation.
+- This API is in an early stage and currently exposes health checks and basic user creation.
+- User records are persisted through JPA.
+- No real authentication or password handling exists yet. The backend currently stores a placeholder `passwordHash` value internally.

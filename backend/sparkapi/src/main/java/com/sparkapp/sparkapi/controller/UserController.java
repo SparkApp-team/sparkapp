@@ -5,8 +5,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.sparkapp.sparkapi.dto.CreateUserRequest;
 import com.sparkapp.sparkapi.dto.UserResponse;
+import com.sparkapp.sparkapi.model.User;
+import com.sparkapp.sparkapi.repository.UserRepository;
 
-import java.util.concurrent.atomic.AtomicLong;
 
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -14,12 +15,21 @@ import org.springframework.web.bind.annotation.RequestBody;
 @RestController
 @RequestMapping("/users")
 public class UserController {
-    private static final AtomicLong id = new AtomicLong(1);
+    private final UserRepository userRepository;
+
+    public UserController(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
 
     @PostMapping()
     public UserResponse createUser(@RequestBody CreateUserRequest createUserRequest) {
+        User user = new User();
+        user.setEmail(createUserRequest.email());
+        user.setPasswordHash("TODO");
 
-        return new UserResponse(String.valueOf(id.getAndIncrement()), createUserRequest.email());
+        User savedUser = userRepository.save(user);
+
+        return new UserResponse(String.valueOf(savedUser.getId()), savedUser.getEmail());
     }
 
 }
