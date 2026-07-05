@@ -14,6 +14,7 @@ struct SparkAppApp: App {
     var body: some Scene {
         WindowGroup {
             AppView()
+                .environment(AppState())
                 .environment(delegate.dependencies.sparkManager)
                 .environment(delegate.dependencies.habitManager)
         }

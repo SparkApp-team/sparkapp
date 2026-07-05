@@ -62,6 +62,7 @@ struct HabitsView: View {
     private func checkServerStatus() async {
         do {
             status = try await sparkManager.getServerStatus()
+            print("Server status is: \(status)")
         } catch {
             print("Error checking server status: \(error)")
         }

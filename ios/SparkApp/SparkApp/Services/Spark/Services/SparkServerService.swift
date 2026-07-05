@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct SparkServerService: SparkService {
-    private let baseURL = URL(string: "http://localhost:8080")!
+    private let baseURL = URL(string: "http://localhost:8081")!
     private let session: URLSession = .shared
     
     func getServerStatus() async throws -> ServerStatus {
@@ -23,13 +23,12 @@ struct SparkServerService: SparkService {
               (200...299).contains(http.statusCode) else {
             throw URLError(.badServerResponse)
         }
-        
-        // ******* plain text
-        guard let responseString = String(data: data, encoding: .utf8) else {
-            throw URLError(.cannotDecodeContentData)
+
+        do {
+            let serverStatus = try JSONDecoder().decode(ServerStatus.self, from: data)
+            return serverStatus
+        } catch {
+            throw URLError(.cannotParseResponse)
         }
-        
-        return ServerStatus(status: responseString.trimmingCharacters(in: .whitespacesAndNewlines))
-        //return try JSONDecoder().decode(String.self, from: data)
     }
 }

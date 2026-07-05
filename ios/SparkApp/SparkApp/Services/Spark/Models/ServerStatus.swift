@@ -10,7 +10,11 @@ import SwiftUI
 
 enum ServerStatus: Codable {
     case ok, bad, unknown
-    
+
+    private struct Payload: Codable {
+        let status: String
+    }
+
     init(status: String) {
         switch status {
         case "ok":
@@ -21,7 +25,24 @@ enum ServerStatus: Codable {
             self = .unknown
         }
     }
-    
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        let payload = try container.decode(Payload.self)
+        self.init(status: payload.status)
+    }
+
+    func encode(to encoder: Encoder) throws {
+        let rawStatus: String
+        switch self {
+        case .ok: rawStatus = "ok"
+        case .bad: rawStatus = "bad"
+        case .unknown: rawStatus = "unknown"
+        }
+        var container = encoder.singleValueContainer()
+        try container.encode(Payload(status: rawStatus))
+    }
+
     var color: Color {
         switch self {
         case .ok:
