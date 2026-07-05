@@ -1,0 +1,11 @@
+services:
+  sparkapp:
+    image: sparkapp
+    build:
+      context: ./backend/sparkapi
+      dockerfile: Dockerfile
+    environment:
+      JAVA_OPTS: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005,quiet=y
+    ports:
+      - 8081:8081
+      - 5005:5005

@@ -1,0 +1,8 @@
+services:
+  sparkapp:
+    image: sparkapp
+    build:
+      context: ./backend/sparkapi
+      dockerfile: Dockerfile
+    ports:
+      - 8081:8081

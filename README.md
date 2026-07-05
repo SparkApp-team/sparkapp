@@ -73,17 +73,58 @@ Full collaboration rules are in [`CONTRIBUTING.md`](./CONTRIBUTING.md).
 
 ### Backend
 
-Navigate into `backend/` and follow the instructions in its README.
+Navigate into `backend/sparkapi/` and follow the instructions in its README.
 Once initialized, you can run the backend locally:
 
 ```
-./gradlew bootRun
-```
-
-or
-
-```
 mvn spring-boot:run
+```
+
+### Docker
+
+Docker support is for the Spring Boot backend. The iOS app is not Dockerized because it requires Xcode/macOS tooling.
+
+From the repository root, build and start the backend container:
+
+```
+docker compose up -d --build
+```
+
+The API will be available at:
+
+```
+http://localhost:8081
+```
+
+Check the running service:
+
+```
+docker compose ps
+```
+
+Follow backend logs:
+
+```
+docker compose logs -f
+```
+
+Stop the backend container:
+
+```
+docker compose down
+```
+
+To run with the debug port exposed:
+
+```
+docker compose -f compose.yaml -f compose.debug.yaml up -d --build
+```
+
+This exposes:
+
+```
+8081  # backend API
+5005  # JVM debug port
 ```
 
 ### iOS
