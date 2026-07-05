@@ -8,15 +8,20 @@
 import SwiftUI
 
 struct SparkServerService: SparkService {
-    private let baseURL = URL(string: "http://localhost:8081")!
+    private let baseURL: URL
     private let session: URLSession = .shared
-    
+
+    init(environment: APIEnvironment = .current) {
+        self.baseURL = environment.baseURL
+    }
+
     func getServerStatus() async throws -> ServerStatus {
         let url = baseURL.appendingPathComponent("health")
-        
+
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
-        
+        request.setValue("true", forHTTPHeaderField: "ngrok-skip-browser-warning")
+
         let (data, response) = try await session.data(for: request)
         
         guard let http = response as? HTTPURLResponse,
