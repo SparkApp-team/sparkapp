@@ -40,20 +40,19 @@ public class UserController {
 
 
 
-        String currentUserId = fakeAuthService.getCurrentUserId(userIdHeader);
+        Long currentUserId = fakeAuthService.getCurrentUserId(userIdHeader);
         
-
-        return new UserResponse(String.valueOf(savedUser.getId()), savedUser.getEmail());
+        return new UserResponse(savedUser.getId(), savedUser.getEmail());
     }
 
     @GetMapping("/me")
     public UserResponse getCurrentUser(@RequestHeader("X-USER-ID") String userIdHeader) {
-        String currentUserId = fakeAuthService.getCurrentUserId(userIdHeader);
+        Long currentUserId = fakeAuthService.getCurrentUserId(userIdHeader);
 
-        User user = userRepository.findById(Long.valueOf(currentUserId))
+        User user = userRepository.findById(currentUserId)
                 .orElseThrow();
 
-        return new UserResponse(String.valueOf(user.getId()), user.getEmail());
+        return new UserResponse(user.getId(), user.getEmail());
 
     }
 

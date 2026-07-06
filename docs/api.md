@@ -73,14 +73,14 @@ Example response:
 
 ```json
 {
-  "id": "1",
+  "id": 1,
   "email": "your@email.com"
 }
 ```
 
 Response fields:
 
-- `id` (`string`): Generated user ID.
+- `id` (`number`): Generated user ID.
 - `email` (`string`): User email.
 
 
@@ -108,19 +108,114 @@ Example response:
 
 ```json
 {
-  "id": "1",
+  "id": 1,
   "email": "your@email.com"
 }
 ```
 
 Response fields:
 
-- `id` (`string`): Current user ID.
+- `id` (`number`): Current user ID.
 - `email` (`string`): Current user email.
+
+
+### `POST /habits`
+
+Purpose:
+Creates a habit for the current fake-auth user identified by the `X-USER-ID` header.
+
+Request:
+
+- Content-Type: `application/json`
+- Required header: `X-USER-ID`
+
+Example request header:
+
+```text
+X-USER-ID: 1
+```
+
+Example request:
+
+```json
+{
+  "name": "Drink water",
+  "frequency": "daily"
+}
+```
+
+Request fields:
+
+- `name` (`string`): Habit name.
+- `frequency` (`string`): Habit frequency.
+
+Response:
+
+- Status: `200 OK`
+- Content-Type: `application/json`
+
+Example response:
+
+```json
+{
+  "id": 1,
+  "userId": 1,
+  "name": "Drink water",
+  "frequency": "daily"
+}
+```
+
+Response fields:
+
+- `id` (`number`): Generated habit ID.
+- `userId` (`number`): User ID that owns the habit.
+- `name` (`string`): Habit name.
+- `frequency` (`string`): Habit frequency.
+
+
+### `GET /habits`
+
+Purpose:
+Returns all habits owned by the current fake-auth user identified by the `X-USER-ID` header.
+
+Request:
+
+- Required header: `X-USER-ID`
+
+Example request header:
+
+```text
+X-USER-ID: 1
+```
+
+Response:
+
+- Status: `200 OK`
+- Content-Type: `application/json`
+
+Example response:
+
+```json
+[
+  {
+    "id": 1,
+    "userId": 1,
+    "name": "Drink water",
+    "frequency": "daily"
+  }
+]
+```
+
+Response fields:
+
+- `id` (`number`): Habit ID.
+- `userId` (`number`): User ID that owns the habit.
+- `name` (`string`): Habit name.
+- `frequency` (`string`): Habit frequency.
 
 ## Notes
 
-- This API is in an early stage and currently exposes health checks, basic user creation, and a current-user lookup.
-- User records are persisted through JPA.
-- Authentication is currently fake: `X-USER-ID` is treated as the current user ID.
+- This API is in an early stage and currently exposes health checks, basic user creation, current-user lookup, habit creation, and habit listing.
+- User and habit records are persisted through JPA.
+- Authentication is currently fake: `X-USER-ID` is parsed as the current numeric user ID.
 - Password hashing is currently fake: the fake hash service reverses the submitted password string.
