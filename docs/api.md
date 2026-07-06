@@ -40,22 +40,29 @@ Response fields:
 ### `POST /users`
 
 Purpose:
-Creates a user from the provided email and persists it through the JPA `UserRepository`.
+Creates a user from the provided email and password, hashes the password through the current fake hash service, and persists the user through the JPA `UserRepository`.
 
 Request:
 
 - Content-Type: `application/json`
+- Required header: `X-USER-ID`
 
 Example request:
 
 ```json
 {
-  "email": "your@email.com"
+  "email": "your@email.com",
+  "password": "password"
 }
 ```
 Request fields:
 
 - `email` (`string`): Email address for the user.
+- `password` (`string`): Plain-text password submitted by the client. The current backend stores only the generated password hash internally.
+
+Request headers:
+
+- `X-USER-ID` (`string`): Temporary fake-auth user ID header. The current fake auth service returns this value as the current user ID.
 
 Response:
 
@@ -76,8 +83,44 @@ Response fields:
 - `id` (`string`): Generated user ID.
 - `email` (`string`): User email.
 
+
+### `GET /users/me`
+
+Purpose:
+Returns the current user identified by the temporary fake-auth `X-USER-ID` header.
+
+Request:
+
+- Required header: `X-USER-ID`
+
+Example request header:
+
+```text
+X-USER-ID: 1
+```
+
+Response:
+
+- Status: `200 OK`
+- Content-Type: `application/json`
+
+Example response:
+
+```json
+{
+  "id": "1",
+  "email": "your@email.com"
+}
+```
+
+Response fields:
+
+- `id` (`string`): Current user ID.
+- `email` (`string`): Current user email.
+
 ## Notes
 
-- This API is in an early stage and currently exposes health checks and basic user creation.
+- This API is in an early stage and currently exposes health checks, basic user creation, and a current-user lookup.
 - User records are persisted through JPA.
-- No real authentication or password handling exists yet. The backend currently stores a placeholder `passwordHash` value internally.
+- Authentication is currently fake: `X-USER-ID` is treated as the current user ID.
+- Password hashing is currently fake: the fake hash service reverses the submitted password string.

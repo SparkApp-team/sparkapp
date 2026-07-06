@@ -7,29 +7,54 @@ import com.sparkapp.sparkapi.dto.CreateUserRequest;
 import com.sparkapp.sparkapi.dto.UserResponse;
 import com.sparkapp.sparkapi.model.User;
 import com.sparkapp.sparkapi.repository.UserRepository;
-
+import com.sparkapp.sparkapi.service.FakeAuthService;
+import com.sparkapp.sparkapi.service.FakeHashService;
 
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @RestController
 @RequestMapping("/users")
 public class UserController {
-    private final UserRepository userRepository;
 
-    public UserController(UserRepository userRepository) {
+    private final UserRepository userRepository;
+    private final FakeAuthService fakeAuthService;
+    private final FakeHashService fakeHashService;
+
+    public UserController(UserRepository userRepository, FakeAuthService fakeAuthService, FakeHashService fakeHashService) {
         this.userRepository = userRepository;
+        this.fakeAuthService = fakeAuthService;
+        this.fakeHashService = fakeHashService;
     }
 
     @PostMapping()
-    public UserResponse createUser(@RequestBody CreateUserRequest createUserRequest) {
+    public UserResponse createUser(@RequestHeader("X-USER-ID") String userIdHeader,
+                                    @RequestBody CreateUserRequest createUserRequest) {
         User user = new User();
         user.setEmail(createUserRequest.email());
-        user.setPasswordHash("TODO");
-
+        user.setPasswordHash(fakeHashService.hashPassword(createUserRequest.password()));
         User savedUser = userRepository.save(user);
 
+
+
+        String currentUserId = fakeAuthService.getCurrentUserId(userIdHeader);
+        
+
         return new UserResponse(String.valueOf(savedUser.getId()), savedUser.getEmail());
+    }
+
+    @GetMapping("/me")
+    public UserResponse getCurrentUser(@RequestHeader("X-USER-ID") String userIdHeader) {
+        String currentUserId = fakeAuthService.getCurrentUserId(userIdHeader);
+
+        User user = userRepository.findById(Long.valueOf(currentUserId))
+                .orElseThrow();
+
+        return new UserResponse(String.valueOf(user.getId()), user.getEmail());
+
     }
 
 }
