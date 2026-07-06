@@ -42,7 +42,7 @@ public class UserControllerTest {
     @Test
     void createUserReturnsMockedUserWithId() throws Exception {
 
-        when(fakeAuthService.getCurrentUserId("123")).thenReturn("123");
+        when(fakeAuthService.getCurrentUserId("123")).thenReturn(123L);
 
         when(userRepository.save(any(User.class))).thenAnswer(invocation -> {
             User user = invocation.getArgument(0);
@@ -74,7 +74,7 @@ public class UserControllerTest {
         user.setEmail("test@example.com");
         user.setPasswordHash("TODO");
 
-        when(fakeAuthService.getCurrentUserId("1")).thenReturn("1");
+        when(fakeAuthService.getCurrentUserId("1")).thenReturn(1L);
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
 
         mockMvc.perform(get("/users/me")
