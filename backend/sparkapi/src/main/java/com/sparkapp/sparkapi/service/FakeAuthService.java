@@ -4,7 +4,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class FakeAuthService {
-    public String getCurrentUserId(String userIdHeader) {
-        return userIdHeader;
+    public Long getCurrentUserId(String userIdHeader) {
+        return Long.valueOf(userIdHeader);
     }
 }
