@@ -31,18 +31,12 @@ public class UserController {
     }
 
     @PostMapping()
-    public UserResponse createUser(@RequestHeader("X-USER-ID") String userIdHeader,
-                                    @RequestBody CreateUserRequest createUserRequest) {
+    public UserResponse createUser(@RequestBody CreateUserRequest createUserRequest) {
         User user = new User();
         user.setEmail(createUserRequest.email());
         user.setPasswordHash(fakeHashService.hashPassword(createUserRequest.password()));
-        User savedUser = userRepository.save(user);
-
-
-
-        Long currentUserId = fakeAuthService.getCurrentUserId(userIdHeader);
-        
-        return new UserResponse(savedUser.getId(), savedUser.getEmail());
+        User savedUser = userRepository.save(user);       
+        return new UserResponse(savedUser.getId().toString(), savedUser.getEmail());
     }
 
     @GetMapping("/me")
@@ -52,7 +46,7 @@ public class UserController {
         User user = userRepository.findById(currentUserId)
                 .orElseThrow();
 
-        return new UserResponse(user.getId(), user.getEmail());
+        return new UserResponse(user.getId().toString(), user.getEmail());
 
     }
 
