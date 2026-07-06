@@ -5,9 +5,10 @@
 ### Health check
 GET {{baseUrl}}/health
 
-### Create first user
-# The controller requires X-USER-ID even though createUser does not use it yet.
-POST {{baseUrl}}/users
+### Register first user
+# Expected: 200 OK
+# Response contains userId "1" on a fresh database.
+POST {{baseUrl}}/auth/register
 Content-Type: application/json
 
 {
@@ -15,22 +16,139 @@ Content-Type: application/json
   "password": "password"
 }
 
-### Create second user
-POST {{baseUrl}}/users
+### Register second user
+# Expected: 200 OK
+# Response contains userId "2" on a fresh database.
+POST {{baseUrl}}/auth/register
 Content-Type: application/json
-X-USER-ID: {{otherUserId}}
 
 {
   "email": "second@example.com",
   "password": "password123"
 }
 
+### Register duplicate email
+# Expected: 409 Conflict
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "email": "roman@example.com",
+  "password": "password"
+}
+
+### Register missing email
+# Expected: 400 Bad Request
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "email": "",
+  "password": "password"
+}
+
+### Register missing password
+# Expected: 400 Bad Request
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "email": "missing-password@example.com",
+  "password": ""
+}
+
+### Register short password
+# Expected: 400 Bad Request
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "email": "short-password@example.com",
+  "password": "short"
+}
+
+### Login first user
+# Expected: 200 OK
+# Use returned userId as X-USER-ID while fake auth is in place.
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "roman@example.com",
+  "password": "password"
+}
+
+### Login second user
+# Expected: 200 OK
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "second@example.com",
+  "password": "password123"
+}
+
+### Login wrong password
+# Expected: 401 Unauthorized
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "roman@example.com",
+  "password": "wrong-password"
+}
+
+### Login unknown email
+# Expected: 401 Unauthorized
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "unknown@example.com",
+  "password": "password"
+}
+
+### Login missing email
+# Expected: 400 Bad Request
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "",
+  "password": "password"
+}
+
+### Login missing password
+# Expected: 400 Bad Request
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "roman@example.com",
+  "password": ""
+}
+
 ### Get current user
-# Run "Create first user" first if the database is empty.
+# Expected: 200 OK for userId 1 on a fresh database.
 GET {{baseUrl}}/users/me
 X-USER-ID: {{userId}}
 
-### Create habit for current user
+### Get second current user
+# Expected: 200 OK for userId 2 on a fresh database.
+GET {{baseUrl}}/users/me
+X-USER-ID: {{otherUserId}}
+
+### Get current user without fake auth header
+# Expected: 400 Bad Request because X-USER-ID is required.
+GET {{baseUrl}}/users/me
+
+### Get current user with invalid fake auth header
+# Expected: 500 Internal Server Error unless fake auth error handling is added.
+GET {{baseUrl}}/users/me
+X-USER-ID: not-a-number
+
+### Create habit for first user
+# Expected: 200 OK
 POST {{baseUrl}}/habits
 Content-Type: application/json
 X-USER-ID: {{userId}}
@@ -40,7 +158,8 @@ X-USER-ID: {{userId}}
   "frequency": "daily"
 }
 
-### Create another habit for current user
+### Create another habit for first user
+# Expected: 200 OK
 POST {{baseUrl}}/habits
 Content-Type: application/json
 X-USER-ID: {{userId}}
@@ -50,21 +169,32 @@ X-USER-ID: {{userId}}
   "frequency": "weekly"
 }
 
-### List habits for current user
+### Create habit for second user
+# Expected: 200 OK
+POST {{baseUrl}}/habits
+Content-Type: application/json
+X-USER-ID: {{otherUserId}}
+
+{
+  "name": "Walk",
+  "frequency": "daily"
+}
+
+### List habits for first user
+# Expected: only habits created with X-USER-ID 1.
 GET {{baseUrl}}/habits
 X-USER-ID: {{userId}}
 
 ### List habits for second user
-# Should return an empty array until you create habits with X-USER-ID: 2.
+# Expected: only habits created with X-USER-ID 2.
 GET {{baseUrl}}/habits
 X-USER-ID: {{otherUserId}}
 
-### Missing fake auth header check
+### List habits without fake auth header
 # Expected: 400 Bad Request because X-USER-ID is required.
-GET {{baseUrl}}/users/me
+GET {{baseUrl}}/habits
 
-### Invalid fake auth header check
-# Expected: 500 Internal Server Error unless error handling is added,
-# because FakeAuthService parses X-USER-ID as a Long.
+### List habits with invalid fake auth header
+# Expected: 500 Internal Server Error unless fake auth error handling is added.
 GET {{baseUrl}}/habits
 X-USER-ID: not-a-number
