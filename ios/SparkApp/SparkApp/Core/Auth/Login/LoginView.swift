@@ -9,7 +9,6 @@ import SwiftUI
 
 struct LoginView: View {
     @Environment(AppState.self) private var root
-    @Environment(SparkManager.self) private var sparkManager
 
     private enum Field {
         case email
@@ -19,7 +18,7 @@ struct LoginView: View {
     @State var email: String = ""
     @State var password: String = ""
     #if DEBUG
-    @State private var selectedEnvironment: APIEnvironment = .current
+    @State private var showDevMenu = false
     #endif
     //@FocusState private var focusedField: Field?
 
@@ -36,38 +35,19 @@ struct LoginView: View {
             #if DEBUG
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    devMenu
+                    Button {
+                        showDevMenu = true
+                    } label: {
+                        Label("Dev Menu", systemImage: "hammer.fill")
+                    }
                 }
+            }
+            .sheet(isPresented: $showDevMenu) {
+                DevMenuView(email: email, password: password)
             }
             #endif
         }
     }
-
-    #if DEBUG
-    private var devMenu: some View {
-        Menu {
-            ForEach(APIEnvironment.allCases, id: \.self) { env in
-                Button {
-                    selectEnvironment(env)
-                } label: {
-                    if env == selectedEnvironment {
-                        Label(env.rawValue, systemImage: "checkmark")
-                    } else {
-                        Text(env.rawValue)
-                    }
-                }
-            }
-        } label: {
-            Label("Dev Menu", systemImage: "hammer.fill")
-        }
-    }
-
-    private func selectEnvironment(_ env: APIEnvironment) {
-        selectedEnvironment = env
-        APIEnvironment.current = env
-        sparkManager.service = SparkServerService(environment: env)
-    }
-    #endif
 
     private var loginForm: some View {
         VStack(alignment: .leading, spacing: 40) {

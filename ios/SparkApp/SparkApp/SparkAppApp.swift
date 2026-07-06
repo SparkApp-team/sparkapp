@@ -16,7 +16,9 @@ struct SparkAppApp: App {
             AppView()
                 .environment(AppState())
                 .environment(delegate.dependencies.sparkManager)
+                .environment(delegate.dependencies.userManager)
                 .environment(delegate.dependencies.habitManager)
+                .environment(delegate.dependencies.logManager)
         }
     }
 }
@@ -63,18 +65,26 @@ struct AppDependencies {
     
     let sparkManager: SparkManager
     let habitManager: HabitManager
-    
+    let userManager: UsersManager
+    let logManager: LogManager
+
     init(_ config: BuildConfiguration) {
         switch config {
         case .mock:
+            logManager   = LogManager(services: [ConsoleService(printParameters: false)])
             sparkManager = SparkManager(service: MockSparkService())
             habitManager = HabitManager(service: MockHabitService())
+            userManager  = UsersManager(service: MockUserService(), logManager: logManager)
         case .dev:
+            logManager   = LogManager(services: [ConsoleService(printParameters: true)])
             sparkManager = SparkManager(service: SparkServerService())
             habitManager = HabitManager(service: SparkHabitService())
+            userManager  = UsersManager(service: SparkUserService(), logManager: logManager)
         case .prod:
+            logManager   = LogManager(services: [ConsoleService(printParameters: true)])
             sparkManager = SparkManager(service: SparkServerService())
             habitManager = HabitManager(service: SparkHabitService())
+            userManager  = UsersManager(service: SparkUserService(), logManager: logManager)
         }
     }
 }
@@ -84,6 +94,8 @@ extension View {
         self
             .environment(SparkManager(service: MockSparkService()))
             .environment(HabitManager(service: MockHabitService()))
+            .environment(UsersManager(service: MockUserService()))
+            .environment(LogManager(services: [ConsoleService(printParameters: false)]))
             .environment(AppState())
     }
 }
