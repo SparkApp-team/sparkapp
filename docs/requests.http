@@ -1,0 +1,70 @@
+@baseUrl = http://localhost:8081
+@userId = 1
+@otherUserId = 2
+
+### Health check
+GET {{baseUrl}}/health
+
+### Create first user
+# The controller requires X-USER-ID even though createUser does not use it yet.
+POST {{baseUrl}}/users
+Content-Type: application/json
+
+{
+  "email": "roman@example.com",
+  "password": "password"
+}
+
+### Create second user
+POST {{baseUrl}}/users
+Content-Type: application/json
+X-USER-ID: {{otherUserId}}
+
+{
+  "email": "second@example.com",
+  "password": "password123"
+}
+
+### Get current user
+# Run "Create first user" first if the database is empty.
+GET {{baseUrl}}/users/me
+X-USER-ID: {{userId}}
+
+### Create habit for current user
+POST {{baseUrl}}/habits
+Content-Type: application/json
+X-USER-ID: {{userId}}
+
+{
+  "name": "Drink water",
+  "frequency": "daily"
+}
+
+### Create another habit for current user
+POST {{baseUrl}}/habits
+Content-Type: application/json
+X-USER-ID: {{userId}}
+
+{
+  "name": "Read",
+  "frequency": "weekly"
+}
+
+### List habits for current user
+GET {{baseUrl}}/habits
+X-USER-ID: {{userId}}
+
+### List habits for second user
+# Should return an empty array until you create habits with X-USER-ID: 2.
+GET {{baseUrl}}/habits
+X-USER-ID: {{otherUserId}}
+
+### Missing fake auth header check
+# Expected: 400 Bad Request because X-USER-ID is required.
+GET {{baseUrl}}/users/me
+
+### Invalid fake auth header check
+# Expected: 500 Internal Server Error unless error handling is added,
+# because FakeAuthService parses X-USER-ID as a Long.
+GET {{baseUrl}}/habits
+X-USER-ID: not-a-number
