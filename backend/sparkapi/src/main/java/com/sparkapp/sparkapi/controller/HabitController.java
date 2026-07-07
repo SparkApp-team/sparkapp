@@ -1,12 +1,10 @@
 package com.sparkapp.sparkapi.controller;
 
-import com.sparkapp.sparkapi.repository.UserRepository;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.sparkapp.sparkapi.dto.CreateHabitRequest;
-import com.sparkapp.sparkapi.dto.CreateUserRequest;
 import com.sparkapp.sparkapi.dto.HabitResponse;
 import com.sparkapp.sparkapi.model.Habit;
 import com.sparkapp.sparkapi.repository.HabitRepository;
@@ -18,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import java.util.List;
 
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
 
 
