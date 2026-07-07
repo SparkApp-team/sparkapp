@@ -23,9 +23,7 @@ build/
 *.pbxuser
 *.mode1v3
 *.perspectivev3
-*.xcscheme
 xcuserdata/
-xcshareddata/
 # Swift Package Manager
 .build/
 Packages/
