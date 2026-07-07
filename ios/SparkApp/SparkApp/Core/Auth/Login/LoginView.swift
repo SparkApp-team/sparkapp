@@ -9,7 +9,8 @@ import SwiftUI
 
 struct LoginView: View {
     @Environment(AppState.self) private var root
-    @Environment(SparkManager.self) private var sparkManager
+    @Environment(UsersManager.self) private var userManager
+    @Environment(LogManager.self) private var logManager
 
     private enum Field {
         case email
@@ -18,9 +19,7 @@ struct LoginView: View {
 
     @State var email: String = ""
     @State var password: String = ""
-    #if DEBUG
-    @State private var selectedEnvironment: APIEnvironment = .current
-    #endif
+    @State private var errorMessage: String?
     //@FocusState private var focusedField: Field?
 
     var body: some View {
@@ -33,41 +32,9 @@ struct LoginView: View {
                 ctaButtons
             }
             .background(AppColors.P2.background)
-            #if DEBUG
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    devMenu
-                }
-            }
-            #endif
+            .devMenuToolbar(email: $email, password: $password)
         }
     }
-
-    #if DEBUG
-    private var devMenu: some View {
-        Menu {
-            ForEach(APIEnvironment.allCases, id: \.self) { env in
-                Button {
-                    selectEnvironment(env)
-                } label: {
-                    if env == selectedEnvironment {
-                        Label(env.rawValue, systemImage: "checkmark")
-                    } else {
-                        Text(env.rawValue)
-                    }
-                }
-            }
-        } label: {
-            Label("Dev Menu", systemImage: "hammer.fill")
-        }
-    }
-
-    private func selectEnvironment(_ env: APIEnvironment) {
-        selectedEnvironment = env
-        APIEnvironment.current = env
-        sparkManager.service = SparkServerService(environment: env)
-    }
-    #endif
 
     private var loginForm: some View {
         VStack(alignment: .leading, spacing: 40) {
@@ -88,6 +55,12 @@ struct LoginView: View {
                     placeholder: "Password",
                     text: $password
                 )
+
+                if let errorMessage {
+                    Text(errorMessage)
+                        .foregroundStyle(AppColors.P2.primary)
+                        .font(.callout)
+                }
             }
         }
         .padding(.horizontal)
@@ -107,7 +80,7 @@ struct LoginView: View {
                     .font(.callout)
                 
                 NavigationLink {
-                    EmptyView()
+                    RegisterView()
                 } label: {
                     Text("Register Now")
                         .foregroundStyle(AppColors.P2.secondary)
@@ -121,8 +94,16 @@ struct LoginView: View {
 
     private func onLoginPressed() {
         Task {
-            try? await Task.sleep(for: .seconds(2))
-            root.updateState(option: .content)
+            do {
+                errorMessage = nil
+                try await userManager.login(email: email, password: password)
+                if let _ = userManager.currentUser {
+                    root.updateState(option: .content)
+                }
+            } catch let error as APIError {
+                errorMessage = error.errorDescription
+                logManager.trackEvent(eventName: "Error: \(error)", parameters: ["Message": error.errorDescription ?? "No message"])
+            }
         }
     }
 }

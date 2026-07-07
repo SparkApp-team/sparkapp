@@ -20,7 +20,7 @@ class AppState {
     }
 }
 
-enum AppStateOption: String {
+enum AppStateOption: String, CaseIterable {
     case launch
     case auth
     case content

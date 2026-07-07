@@ -9,10 +9,10 @@ import SwiftUI
 
 struct HabitsView: View {
     
-    @Environment(SparkManager.self) private var sparkManager
+    @Environment(HealthManager.self) private var healthManager
     @Environment(HabitManager.self) private var habitManager
     
-    @State private var status: ServerStatus = .goodMock
+    @State private var health: ServerHealthDataModel = .goodMock
     @State private var habits: [HabitDataModel] = []
     @State private var isLoading: Bool = false
     
@@ -22,7 +22,7 @@ struct HabitsView: View {
                 AppColors.P2.background
                     .ignoresSafeArea()
                 
-                if status != .ok {
+                if health.status != .good {
                     badServerStatus
                 } else {
                     Group {
@@ -41,11 +41,12 @@ struct HabitsView: View {
             .navigationTitle("Habits")
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    serverStatusButton
+                    serverHealthButton
                 }
             }
+            .devMenuToolbar()
             .task {
-                await checkServerStatus()
+                await checkServerHealth()
                 await loadHabits()
             }
         }
@@ -59,12 +60,12 @@ struct HabitsView: View {
         }
     }
     
-    private func checkServerStatus() async {
+    private func checkServerHealth() async {
         do {
-            status = try await sparkManager.getServerStatus()
-            print("Server status is: \(status)")
+            health = try await healthManager.getServerHealth()
+            print("Server status is: \(health.status.rawValue)")
         } catch {
-            status = .bad
+            health = ServerHealthDataModel(status: .bad)
             print("Error checking server status: \(error)")
         }
     }
@@ -114,13 +115,13 @@ struct HabitsView: View {
             .padding(40)
     }
     
-    private var serverStatusButton: some View {
+    private var serverHealthButton: some View {
         Button {
-            Task { await checkServerStatus() }
+            Task { await checkServerHealth() }
         } label: {
-            Label("Status", systemImage: "checkmark.icloud.fill")
+            Label("Health", systemImage: "checkmark.icloud.fill")
         }
-        .tint(status.color)
+        .tint(health.status.color)
     }
 }
 
@@ -137,6 +138,6 @@ struct HabitsView: View {
 
 #Preview("Bad status") {
     HabitsView()
-        .environment(SparkManager(service: MockSparkService(status: .badMock)))
+        .environment(HealthManager(service: MockHealthService(health: .badMock)))
         .previewEnvironment()
 }

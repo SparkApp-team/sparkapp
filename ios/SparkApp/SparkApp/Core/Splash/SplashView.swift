@@ -9,7 +9,8 @@ import SwiftUI
 
 struct SplashView: View {
     @Environment(AppState.self) private var root
-    
+    @Environment(UsersManager.self) private var userManager
+
     @State var isStart: Bool = false
     @State var logoOffset: CGFloat = 0
     
@@ -74,12 +75,13 @@ struct SplashView: View {
     private func endAnimation() {
         Task {
             try? await Task.sleep(for: .seconds(1))
-            root.updateState(option: .auth)
+            let restored = await userManager.restoreSession()
+            root.updateState(option: restored ? .content : .auth)
         }
     }
 }
 
 #Preview {
     SplashView()
-        .environment(AppState())
+        .previewEnvironment()
 }
