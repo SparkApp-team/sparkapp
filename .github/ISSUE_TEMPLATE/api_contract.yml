@@ -1,0 +1,62 @@
+name: API contract change
+description: Propose or update a shared backend/iOS API contract.
+title: "[API]: "
+labels:
+  - "area: api"
+  - "status: needs-triage"
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Suggested branches:
+        `docs/api/<issue-number>-short-description`
+        `feature/api/<issue-number>-short-description`
+        `chore/api/<issue-number>-short-description`
+  - type: textarea
+    id: purpose
+    attributes:
+      label: Purpose
+      description: Why is this contract change needed?
+    validations:
+      required: true
+  - type: input
+    id: endpoint
+    attributes:
+      label: Endpoint
+      description: "Example: /api/habits"
+    validations:
+      required: true
+  - type: dropdown
+    id: method
+    attributes:
+      label: Method
+      options:
+        - GET
+        - POST
+        - PUT
+        - PATCH
+        - DELETE
+    validations:
+      required: true
+  - type: textarea
+    id: request-body
+    attributes:
+      label: Request body / parameters
+      description: Include path params, query params, headers, and JSON body where relevant.
+    validations:
+      required: false
+  - type: textarea
+    id: response-body
+    attributes:
+      label: Response body
+      description: Show the expected response shape.
+      render: json
+    validations:
+      required: true
+  - type: textarea
+    id: error-cases
+    attributes:
+      label: Error cases
+      description: List expected status codes and error body shapes.
+    validations:
+      required: true

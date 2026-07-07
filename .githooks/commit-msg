@@ -1,0 +1,52 @@
+#!/bin/sh
+
+msg_file="$1"
+first_line="$(sed -n '1p' "$msg_file")"
+
+case "$first_line" in
+  Merge\ *|Revert\ *|fixup!\ *|squash!\ *)
+    exit 0
+    ;;
+esac
+
+commit_regex='^(feat|fix|docs|style|refactor|test|chore|ci|build|perf|deps)\([a-z0-9]+(-[a-z0-9]+)*\): .+'
+
+if printf '%s\n' "$first_line" | grep -Eq "$commit_regex"; then
+  exit 0
+fi
+
+cat >&2 <<'EOF'
+Invalid commit message.
+
+Expected Conventional Commits format:
+  type(scope): short summary
+
+Allowed types:
+  feat, fix, docs, style, refactor, test, chore, ci, build, perf, deps
+
+Scope rules:
+  Use lowercase kebab-case scopes.
+  Preferred scopes include backend, ios, api, db, auth, users, habits,
+  streaks, notifications, ci, infra, docs, tests, repo, deps.
+  Other valid lowercase kebab-case scopes are allowed.
+
+Valid examples:
+  feat(habits): add create habit endpoint
+  fix(streaks): handle timezone boundary
+  test(backend): add habit service tests
+  chore(repo): add issue templates
+  ci(backend): add Maven build workflow
+  docs(api): document habit contract
+  feat(onboarding): add first-run setup
+  fix(profile): handle missing display name
+  refactor(settings): split notification preferences
+
+Invalid examples:
+  added stuff
+  fix bug
+  feat: add habits
+  feature(habits): add endpoint
+  feat(Habits): add endpoint
+EOF
+
+exit 1
