@@ -1,0 +1,63 @@
+name: Bug report
+description: Report something that is broken or behaving unexpectedly.
+title: "[Bug]: "
+labels:
+  - "type: bug"
+  - "status: needs-triage"
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Suggested branches:
+        `fix/backend/<issue-number>-short-description`
+        `fix/ios/<issue-number>-short-description`
+        `fix/api/<issue-number>-short-description`
+  - type: textarea
+    id: current-behavior
+    attributes:
+      label: Current behavior
+      description: What happens now?
+    validations:
+      required: true
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: Expected behavior
+      description: What should happen instead?
+    validations:
+      required: true
+  - type: textarea
+    id: steps-to-reproduce
+    attributes:
+      label: Steps to reproduce
+      description: List the smallest reliable steps that reproduce the bug.
+      placeholder: |
+        1. ...
+        2. ...
+        3. ...
+    validations:
+      required: true
+  - type: dropdown
+    id: affected-area
+    attributes:
+      label: Affected area
+      options:
+        - Backend
+        - iOS
+        - API
+        - Database
+        - Auth
+        - CI
+        - Infrastructure
+        - Documentation
+        - Repo
+        - Unknown
+    validations:
+      required: true
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes, logs, or screenshots
+      description: Add anything else that helps explain or diagnose the issue.
+    validations:
+      required: false

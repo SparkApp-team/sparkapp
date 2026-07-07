@@ -1,0 +1,55 @@
+name: iOS task
+description: Track iOS work for the SwiftUI client.
+title: "[iOS]: "
+labels:
+  - "area: ios"
+  - "status: needs-triage"
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Suggested branches:
+        `feature/ios/<issue-number>-short-description`
+        `fix/ios/<issue-number>-short-description`
+        `test/ios/<issue-number>-short-description`
+        `refactor/ios/<issue-number>-short-description`
+  - type: textarea
+    id: goal
+    attributes:
+      label: Goal
+      description: What should this iOS task accomplish?
+    validations:
+      required: true
+  - type: dropdown
+    id: ios-area
+    attributes:
+      label: iOS area
+      options:
+        - View
+        - ViewModel
+        - Model
+        - API client
+        - Local storage
+        - Navigation
+        - UI polish
+        - Tests
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: api-dependency
+    attributes:
+      label: API dependency
+      description: Mention any backend endpoint, contract, or fixture this task depends on.
+    validations:
+      required: false
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: Acceptance criteria
+      description: What must be true before this can be considered done?
+      placeholder: |
+        - [ ] ...
+        - [ ] ...
+    validations:
+      required: true

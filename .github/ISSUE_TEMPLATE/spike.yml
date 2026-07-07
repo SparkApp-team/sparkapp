@@ -1,0 +1,59 @@
+name: Spike / research
+description: Time-box research before deciding an implementation path.
+title: "[Spike]: "
+labels:
+  - "type: spike"
+  - "status: needs-triage"
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Suggested branches:
+        `spike/auth/<issue-number>-session-strategy`
+        `spike/backend/<issue-number>-persistence-approach`
+        `spike/api/<issue-number>-contract-design`
+  - type: textarea
+    id: research-question
+    attributes:
+      label: Research question
+      description: What decision or unknown should this spike resolve?
+    validations:
+      required: true
+  - type: dropdown
+    id: affected-area
+    attributes:
+      label: Affected area
+      options:
+        - Backend
+        - iOS
+        - API
+        - Database
+        - Auth
+        - CI
+        - Infrastructure
+        - Documentation
+        - Repo
+    validations:
+      required: true
+  - type: textarea
+    id: options-to-compare
+    attributes:
+      label: Options to compare
+      description: List candidate approaches, tools, or tradeoffs.
+    validations:
+      required: false
+  - type: textarea
+    id: decision-criteria
+    attributes:
+      label: Decision criteria
+      description: What factors should determine the recommendation?
+    validations:
+      required: true
+  - type: textarea
+    id: expected-output
+    attributes:
+      label: Expected output
+      description: What should the spike produce?
+      placeholder: Recommendation, short design note, prototype branch, or follow-up issues.
+    validations:
+      required: true

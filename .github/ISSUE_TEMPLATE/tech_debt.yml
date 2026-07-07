@@ -1,0 +1,63 @@
+name: Tech debt / refactor
+description: Track cleanup, refactoring, or maintainability work.
+title: "[Refactor]: "
+labels:
+  - "type: refactor"
+  - "status: needs-triage"
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Suggested branches:
+        `refactor/backend/<issue-number>-short-description`
+        `refactor/ios/<issue-number>-short-description`
+        `chore/repo/<issue-number>-short-description`
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What is hard to maintain, risky, duplicated, or unclear?
+    validations:
+      required: true
+  - type: dropdown
+    id: affected-area
+    attributes:
+      label: Affected area
+      options:
+        - Backend
+        - iOS
+        - API
+        - Database
+        - Auth
+        - CI
+        - Infrastructure
+        - Documentation
+        - Repo
+    validations:
+      required: true
+  - type: textarea
+    id: proposed-change
+    attributes:
+      label: Proposed change
+      description: What should change?
+    validations:
+      required: true
+  - type: checkboxes
+    id: behavior-change-confirmation
+    attributes:
+      label: Behavior-change confirmation
+      options:
+        - label: This should not change user-visible behavior, or any intended behavior change is described above.
+          required: true
+    validations:
+      required: true
+  - type: textarea
+    id: safety-checks
+    attributes:
+      label: Safety checks
+      description: How should reviewers verify the refactor is safe?
+      placeholder: |
+        - [ ] Existing tests pass
+        - [ ] Manual check: ...
+    validations:
+      required: true

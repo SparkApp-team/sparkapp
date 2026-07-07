@@ -1,0 +1,56 @@
+name: Backend task
+description: Track backend work for the Spring Boot API.
+title: "[Backend]: "
+labels:
+  - "area: backend"
+  - "status: needs-triage"
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Suggested branches:
+        `feature/backend/<issue-number>-short-description`
+        `fix/backend/<issue-number>-short-description`
+        `test/backend/<issue-number>-short-description`
+        `refactor/backend/<issue-number>-short-description`
+  - type: textarea
+    id: goal
+    attributes:
+      label: Goal
+      description: What should this backend task accomplish?
+    validations:
+      required: true
+  - type: dropdown
+    id: backend-area
+    attributes:
+      label: Backend area
+      options:
+        - Entity / model
+        - Repository
+        - Service
+        - Controller
+        - DTO / validation
+        - Security / auth
+        - Database / migration
+        - Tests
+        - Configuration
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: implementation-notes
+    attributes:
+      label: Implementation notes
+      description: Include relevant classes, endpoints, data model notes, or constraints.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: Acceptance criteria
+      description: What must be true before this can be considered done?
+      placeholder: |
+        - [ ] ...
+        - [ ] ...
+    validations:
+      required: true
