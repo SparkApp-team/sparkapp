@@ -33,6 +33,12 @@ enum ServerHealth: String, Codable {
 struct ServerHealthDataModel: Codable {
     let status: ServerHealth
 
+    var eventParameters: [String: Any] {
+        [
+            "server_status": status.rawValue
+        ]
+    }
+
     static var goodMock: Self {
         ServerHealthDataModel(status: .good)
     }

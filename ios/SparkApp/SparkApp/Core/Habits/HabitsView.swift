@@ -11,10 +11,13 @@ struct HabitsView: View {
     
     @Environment(HealthManager.self) private var healthManager
     @Environment(HabitManager.self) private var habitManager
-    
+    @Environment(UsersManager.self) private var userManager
+    @Environment(LogManager.self) private var logManager
+
     @State private var health: ServerHealthDataModel = .goodMock
     @State private var habits: [HabitDataModel] = []
     @State private var isLoading: Bool = false
+    @State private var showAddHabit: Bool = false
     
     var body: some View {
         NavigationStack {
@@ -41,10 +44,16 @@ struct HabitsView: View {
             .navigationTitle("Habits")
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
+                    addHabitButton
+                }
+                ToolbarItem(placement: .topBarTrailing) {
                     serverHealthButton
                 }
             }
             .devMenuToolbar()
+            .sheet(isPresented: $showAddHabit) {
+                addHabitSheet
+            }
             .task {
                 await checkServerHealth()
                 await loadHabits()
@@ -54,19 +63,39 @@ struct HabitsView: View {
     
     private func loadHabits() async {
         do {
-            habits = try await habitManager.getHabitsForUser(userId: "")
+            guard let userId = userManager.currentUser?.id else {
+                logManager.trackEvent(
+                    eventName: "HabitsView_LoadHabits_NoUser",
+                    type: .warning
+                )
+                return
+            }
+
+            habits = try await habitManager.getHabitsForUser(userId: userId)
         } catch {
-            print("Error loading habits: \(error)")
+            logManager.trackEvent(
+                eventName: "HabitsView_LoadHabits_Fail",
+                parameters: ["error": error.localizedDescription],
+                type: .severe
+            )
         }
     }
-    
+
     private func checkServerHealth() async {
         do {
             health = try await healthManager.getServerHealth()
-            print("Server status is: \(health.status.rawValue)")
+            logManager.trackEvent(
+                eventName: "HabitsView_ServerHealth",
+                parameters: ["status": health.status.rawValue],
+                type: .info
+            )
         } catch {
             health = ServerHealthDataModel(status: .bad)
-            print("Error checking server status: \(error)")
+            logManager.trackEvent(
+                eventName: "HabitsView_ServerHealth_Fail",
+                parameters: ["error": error.localizedDescription],
+                type: .severe
+            )
         }
     }
     
@@ -84,7 +113,7 @@ struct HabitsView: View {
         List {
             ForEach(habits, id: \.self ) { habit in
                 HStack {
-                    Text(habit.name ?? "")
+                    Text(habit.name)
                         .foregroundColor(AppColors.P2.textPrimary)
                     Spacer()
                 }
@@ -122,6 +151,20 @@ struct HabitsView: View {
             Label("Health", systemImage: "checkmark.icloud.fill")
         }
         .tint(health.status.color)
+    }
+
+    private var addHabitButton: some View {
+        Button {
+            showAddHabit = true
+        } label: {
+            Label("Add Habit", systemImage: "plus")
+        }
+    }
+
+    private var addHabitSheet: some View {
+        AddHabitView {
+            Task { await loadHabits() }
+        }
     }
 }
 
