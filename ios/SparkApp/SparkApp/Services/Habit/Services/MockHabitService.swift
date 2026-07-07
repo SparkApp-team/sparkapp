@@ -15,7 +15,12 @@ struct MockHabitService: HabitService, MockService {
         self.delay = delay
         self.showError = showError
     }
-    
+
+    func createHabit(name: String, frequency: String, userId: String) async throws -> HabitDataModel {
+        try await executionBehaviour()
+        return HabitDataModel.mock
+    }
+
     func getHabitsForUser(userId: String) async throws -> [HabitDataModel] {
         try await executionBehaviour()
         return habits

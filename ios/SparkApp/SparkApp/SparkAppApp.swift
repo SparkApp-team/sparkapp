@@ -71,19 +71,19 @@ struct AppDependencies {
         switch config {
         case .mock:
             logManager    = LogManager(services: [ConsoleService(printParameters: false)])
-            healthManager = HealthManager(service: MockHealthService())
+            healthManager = HealthManager(service: MockHealthService(), logManager: logManager)
             userManager   = UsersManager(service: MockUserService(), logManager: logManager)
-            habitManager  = HabitManager(service: MockHabitService())
+            habitManager  = HabitManager(service: MockHabitService(), logManager: logManager)
         case .dev:
             logManager    = LogManager(services: [ConsoleService(printParameters: true)])
-            healthManager = HealthManager(service: SparkHealthService())
+            healthManager = HealthManager(service: SparkHealthService(), logManager: logManager)
             userManager   = UsersManager(service: SparkUserService(), logManager: logManager)
-            habitManager  = HabitManager(service: SparkHabitService())
+            habitManager  = HabitManager(service: SparkHabitService(), logManager: logManager)
         case .prod:
             logManager    = LogManager(services: [ConsoleService(printParameters: true)])
-            healthManager = HealthManager(service: SparkHealthService())
+            healthManager = HealthManager(service: SparkHealthService(), logManager: logManager)
             userManager   = UsersManager(service: SparkUserService(), logManager: logManager)
-            habitManager  = HabitManager(service: SparkHabitService())
+            habitManager  = HabitManager(service: SparkHabitService(), logManager: logManager)
         }
     }
 }
