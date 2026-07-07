@@ -45,7 +45,6 @@ Creates a user from the provided email and password, hashes the password through
 Request:
 
 - Content-Type: `application/json`
-- Required header: `X-USER-ID`
 
 Example request:
 
@@ -60,10 +59,6 @@ Request fields:
 - `email` (`string`): Email address for the user.
 - `password` (`string`): Plain-text password submitted by the client. The current backend stores only the generated password hash internally.
 
-Request headers:
-
-- `X-USER-ID` (`string`): Temporary fake-auth user ID header. The current fake auth service returns this value as the current user ID.
-
 Response:
 
 - Status: `200 OK`
@@ -73,14 +68,14 @@ Example response:
 
 ```json
 {
-  "id": 1,
+  "userId": "1",
   "email": "your@email.com"
 }
 ```
 
 Response fields:
 
-- `id` (`number`): Generated user ID.
+- `userId` (`string`): Generated user ID. Store this value on the client and send it as `X-USER-ID` for fake-auth endpoints.
 - `email` (`string`): User email.
 
 
@@ -108,14 +103,14 @@ Example response:
 
 ```json
 {
-  "id": 1,
+  "userId": "1",
   "email": "your@email.com"
 }
 ```
 
 Response fields:
 
-- `id` (`number`): Current user ID.
+- `userId` (`string`): Current user ID from the fake-auth header.
 - `email` (`string`): Current user email.
 
 
