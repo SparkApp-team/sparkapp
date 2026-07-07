@@ -15,7 +15,7 @@ struct SparkAppApp: App {
         WindowGroup {
             AppView()
                 .environment(AppState())
-                .environment(delegate.dependencies.sparkManager)
+                .environment(delegate.dependencies.healthManager)
                 .environment(delegate.dependencies.userManager)
                 .environment(delegate.dependencies.habitManager)
                 .environment(delegate.dependencies.logManager)
@@ -24,7 +24,6 @@ struct SparkAppApp: App {
 }
 
 class AppDelegate: NSObject, UIApplicationDelegate {
-    
     var dependencies: AppDependencies!
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
@@ -63,7 +62,7 @@ enum BuildConfiguration {
 @MainActor
 struct AppDependencies {
     
-    let sparkManager: SparkManager
+    let healthManager: HealthManager
     let habitManager: HabitManager
     let userManager: UsersManager
     let logManager: LogManager
@@ -71,20 +70,20 @@ struct AppDependencies {
     init(_ config: BuildConfiguration) {
         switch config {
         case .mock:
-            logManager   = LogManager(services: [ConsoleService(printParameters: false)])
-            sparkManager = SparkManager(service: MockSparkService())
-            habitManager = HabitManager(service: MockHabitService())
-            userManager  = UsersManager(service: MockUserService(), logManager: logManager)
+            logManager    = LogManager(services: [ConsoleService(printParameters: false)])
+            healthManager = HealthManager(service: MockHealthService())
+            userManager   = UsersManager(service: MockUserService(), logManager: logManager)
+            habitManager  = HabitManager(service: MockHabitService())
         case .dev:
-            logManager   = LogManager(services: [ConsoleService(printParameters: true)])
-            sparkManager = SparkManager(service: SparkServerService())
-            habitManager = HabitManager(service: SparkHabitService())
-            userManager  = UsersManager(service: SparkUserService(), logManager: logManager)
+            logManager    = LogManager(services: [ConsoleService(printParameters: true)])
+            healthManager = HealthManager(service: SparkHealthService())
+            userManager   = UsersManager(service: SparkUserService(), logManager: logManager)
+            habitManager  = HabitManager(service: SparkHabitService())
         case .prod:
-            logManager   = LogManager(services: [ConsoleService(printParameters: true)])
-            sparkManager = SparkManager(service: SparkServerService())
-            habitManager = HabitManager(service: SparkHabitService())
-            userManager  = UsersManager(service: SparkUserService(), logManager: logManager)
+            logManager    = LogManager(services: [ConsoleService(printParameters: true)])
+            healthManager = HealthManager(service: SparkHealthService())
+            userManager   = UsersManager(service: SparkUserService(), logManager: logManager)
+            habitManager  = HabitManager(service: SparkHabitService())
         }
     }
 }
@@ -92,7 +91,7 @@ struct AppDependencies {
 extension View {
     func previewEnvironment(isSignedIn: Bool = true) -> some View {
         self
-            .environment(SparkManager(service: MockSparkService()))
+            .environment(HealthManager(service: MockHealthService()))
             .environment(HabitManager(service: MockHabitService()))
             .environment(UsersManager(service: MockUserService()))
             .environment(LogManager(services: [ConsoleService(printParameters: false)]))

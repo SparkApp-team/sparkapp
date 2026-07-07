@@ -10,7 +10,7 @@ import SwiftUI
 
 struct DevMenuView: View {
     @Environment(\.dismiss) private var dismiss
-    @Environment(SparkManager.self) private var sparkManager
+    @Environment(HealthManager.self) private var healthManager
     @Environment(UsersManager.self) private var userManager
 
     @State private var email: String
@@ -102,7 +102,7 @@ struct DevMenuView: View {
 
     private func selectEnvironment(_ env: APIEnvironment) {
         APIEnvironment.current = env
-        sparkManager.service = SparkServerService(environment: env)
+        healthManager.service = SparkHealthService(environment: env)
         userManager.service = SparkUserService(environment: env)
         output = "Environment → \(env.rawValue)\n\(env.baseURL.absoluteString)"
     }

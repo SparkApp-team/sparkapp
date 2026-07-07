@@ -1,5 +1,5 @@
 //
-//  SparkServerService.swift
+//  SparkHealthService.swift
 //  SparkApp
 //
 //  Created by Dmitro Kryzhanovsky on 24.01.2026.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct SparkServerService: SparkService {
+struct SparkHealthService: HealthService {
     private let baseURL: URL
     private let session: URLSession = .shared
 
@@ -15,7 +15,7 @@ struct SparkServerService: SparkService {
         self.baseURL = environment.baseURL
     }
 
-    func getServerStatus() async throws -> ServerStatus {
+    func getServerHealth() async throws -> ServerHealthDataModel {
         let url = baseURL.appendingPathComponent("health")
 
         var request = URLRequest(url: url)
@@ -30,8 +30,8 @@ struct SparkServerService: SparkService {
         }
 
         do {
-            let serverStatus = try JSONDecoder().decode(ServerStatus.self, from: data)
-            return serverStatus
+            let serverHealth = try JSONDecoder().decode(ServerHealthDataModel.self, from: data)
+            return serverHealth
         } catch {
             throw URLError(.cannotParseResponse)
         }
