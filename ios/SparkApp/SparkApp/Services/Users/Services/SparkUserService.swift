@@ -7,67 +7,67 @@
 
 import Foundation
 
-struct SparkUserService: UserService {
-    private let baseURL: URL
-    private let session: URLSession = .shared
+protocol StatusMappedError: Error {
+    var statusCode: Int { get }
+}
 
-    init(environment: APIEnvironment = .current) {
-        self.baseURL = environment.baseURL
+enum UserServiceError: StatusMappedError {
+    case unauthorized
+    case unknown
+    case conflict
+    case badRequest
+    case internalServerError
+
+    var statusCode: Int {
+        switch self {
+        case .internalServerError:           500
+        case .conflict:                      409
+        case .badRequest:                    400
+        case .unauthorized:                  401
+        case .unknown:                       -1   // never matches a real status
+        }
     }
+}
 
-    func addUser(email: String, password: String) async throws -> UserDataModel {
-        let url = baseURL
-            .appendingPathComponent("users")
+struct SparkUserService: UserService {
+    private let client = APIClient()
 
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.setValue("true", forHTTPHeaderField: "ngrok-skip-browser-warning")
-        request.setValue(UUID().hashValue.description, forHTTPHeaderField: "X-USER-ID")
-        request.httpBody = try JSONEncoder().encode(
-            CreateUserRequest(email: email, password: password)
+    func registerUser(email: String, password: String) async throws -> UserDataModel {
+        let body = try JSONEncoder().encode(AuthUserRequestBody(email: email, password: password))
+
+        let endpoint = Endpoint(
+            path: "auth/register",
+            method: .post,
+            body: body
         )
 
-        let (data, response) = try await session.data(for: request)
+        return try await client.send(endpoint, statusErrors: [UserServiceError.conflict,
+                                                              UserServiceError.badRequest])
+    }
 
-        guard let http = response as? HTTPURLResponse,
-              (200...299).contains(http.statusCode) else {
-            throw URLError(.badServerResponse)
-        }
+    func login(email: String, password: String) async throws -> UserDataModel {
+        let body = try JSONEncoder().encode(AuthUserRequestBody(email: email, password: password))
 
-        do {
-            let user = try JSONDecoder().decode(UserDataModel.self, from: data)
-            return user
-        } catch {
-            // Surface the underlying DecodingError instead of masking it.
-            throw error
-        }
+        let endpoint = Endpoint(
+            path: "auth/login",
+            method: .post,
+            body: body
+        )
+
+        return try await client.send(endpoint, statusErrors: [UserServiceError.unauthorized,
+                                                              UserServiceError.badRequest])
     }
 
     func getUser(userId: String) async throws -> UserDataModel {
-        let url = baseURL
-            .appendingPathComponent("users")
-            .appendingPathComponent("me")
+        let header = ["X-USER-ID": userId]
 
-        var request = URLRequest(url: url)
-        request.httpMethod = "GET"
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.setValue("true", forHTTPHeaderField: "ngrok-skip-browser-warning")
-        request.setValue(userId, forHTTPHeaderField: "X-USER-ID")
+        let endpoint = Endpoint(
+            path: "users/me",
+            method: .get,
+            headers: header
+        )
 
-        let (data, response) = try await session.data(for: request)
-
-        guard let http = response as? HTTPURLResponse,
-              (200...299).contains(http.statusCode) else {
-            throw URLError(.badServerResponse)
-        }
-
-        do {
-            let user = try JSONDecoder().decode(UserDataModel.self, from: data)
-            return user
-        } catch {
-            // Surface the underlying DecodingError instead of masking it.
-            throw error
-        }
+        return try await client.send(endpoint, statusErrors: [UserServiceError.internalServerError,
+                                                              UserServiceError.badRequest])
     }
 }

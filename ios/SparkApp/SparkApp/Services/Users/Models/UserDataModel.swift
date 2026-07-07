@@ -9,28 +9,14 @@ struct UserDataModel: Hashable, Codable {
     let id: String
     let email: String
 
-    init(
-        id: String,
-        email: String
-    ) {
+    init(id: String, email: String) {
         self.id = id
         self.email = email
     }
 
     enum CodingKeys: String, CodingKey {
-        case id
+        case id = "userId"
         case email
-    }
-
-    init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        // Backend serializes `id` as a numeric Long; accept a number or a string.
-        if let numericId = try? container.decode(Int.self, forKey: .id) {
-            self.id = String(numericId)
-        } else {
-            self.id = try container.decode(String.self, forKey: .id)
-        }
-        self.email = try container.decode(String.self, forKey: .email)
     }
 
     var eventParameters: [String: Any] {

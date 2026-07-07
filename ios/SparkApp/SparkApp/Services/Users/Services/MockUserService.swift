@@ -18,10 +18,15 @@ struct MockUserService: UserService, MockService {
         self.showError = showError
     }
 
-    func addUser(email: String, password: String) async throws -> UserDataModel {
+    func registerUser(email: String, password: String) async throws -> UserDataModel {
         try await executionBehaviour()
         let newUser = UserDataModel(id: UUID().uuidString, email: email)
         return newUser
+    }
+
+    func login(email: String, password: String) async throws -> UserDataModel {
+        try await executionBehaviour()
+        return user
     }
 
     func getUser(userId: String) async throws -> UserDataModel {

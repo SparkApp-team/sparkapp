@@ -8,7 +8,7 @@
 import Foundation
 import OSLog
 
-enum LogType {
+nonisolated enum LogType {
     case info       // 👋 dev-only noise
     case analytic   // 📈 product analytics
     case warning    // ⚠️ recoverable problem

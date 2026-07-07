@@ -44,6 +44,7 @@ struct HabitsView: View {
                     serverHealthButton
                 }
             }
+            .devMenuToolbar()
             .task {
                 await checkServerHealth()
                 await loadHabits()

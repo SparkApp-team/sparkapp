@@ -11,26 +11,29 @@ import SwiftUI
 struct DevMenuView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(HealthManager.self) private var healthManager
+    @Environment(AppState.self) private var appState
     @Environment(UsersManager.self) private var userManager
 
-    @State private var email: String
-    @State private var password: String
-    @State private var selectedEnvironment: APIEnvironment = .current
-    @State private var userId: String = ""
-    @State private var output: String = ""
-    @State private var isRunning = false
+    /// Optional bindings to the host screen's auth fields.
+    /// When provided, the "Test Accounts" section can autofill them.
+    var email: Binding<String>?
+    var password: Binding<String>?
+    var confirmPassword: Binding<String>?
 
-    init(email: String, password: String) {
-        _email = State(initialValue: email.isEmpty ? "example@gmail.com" : email)
-        _password = State(initialValue: password.isEmpty ? "abcd1234!" : password)
+    @State private var selectedEnvironment: APIEnvironment = .current
+
+    private var canAutofill: Bool {
+        email != nil || password != nil
     }
 
     var body: some View {
         NavigationStack {
             Form {
                 environmentSection
-                userActionsSection
-                outputSection
+                if canAutofill {
+                    testAccountsSection
+                }
+                sessionSection
             }
             .navigationTitle("Dev Menu")
             .navigationBarTitleDisplayMode(.inline)
@@ -61,40 +64,49 @@ struct DevMenuView: View {
         }
     }
 
-    // MARK: - UsersManager methods
+    // MARK: - Test accounts
 
-    private var userActionsSection: some View {
-        Section("UsersManager") {
-            TextField("Email", text: $email)
-                .textInputAutocapitalization(.never)
-                .autocorrectionDisabled()
-                .keyboardType(.emailAddress)
-
-            TextField("Password", text: $password)
-                .textInputAutocapitalization(.never)
-                .autocorrectionDisabled()
-
-            Button("addUser") { runAddUser() }
-                .disabled(isRunning || email.isEmpty || password.isEmpty)
-
-            TextField("User ID", text: $userId)
-                .textInputAutocapitalization(.never)
-                .autocorrectionDisabled()
-
-            Button("getUser") { runGetUser() }
-                .disabled(isRunning || userId.isEmpty)
+    private var testAccountsSection: some View {
+        Section("Test Accounts") {
+            ForEach(TestAccount.presets) { account in
+                Button {
+                    autofill(with: account)
+                } label: {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(account.label)
+                            .foregroundStyle(.primary)
+                        Text("\(account.email) · \(account.password)")
+                            .font(.footnote)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+            }
         }
     }
 
-    private var outputSection: some View {
-        Section("Output") {
-            if isRunning {
-                ProgressView()
+    // MARK: - Session
+
+    private var sessionSection: some View {
+        Section("Session") {
+            if let user = userManager.currentUser {
+                Text("Signed in: \(user.email)")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
             }
-            Text(output.isEmpty ? "No output yet" : output)
-                .font(.system(.footnote, design: .monospaced))
-                .textSelection(.enabled)
-                .foregroundStyle(output.isEmpty ? .secondary : .primary)
+
+            if let userId = UserDefaults.currentUserId {
+                Text("User ID: \(userId)")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+                    .textSelection(.enabled)
+            }
+
+            Button(role: .destructive) {
+                logout()
+            } label: {
+                Text("Log Out")
+            }
+            .disabled(userManager.currentUser == nil)
         }
     }
 
@@ -102,42 +114,43 @@ struct DevMenuView: View {
 
     private func selectEnvironment(_ env: APIEnvironment) {
         APIEnvironment.current = env
-        healthManager.service = SparkHealthService(environment: env)
-        userManager.service = SparkUserService(environment: env)
-        output = "Environment → \(env.rawValue)\n\(env.baseURL.absoluteString)"
+        healthManager.service = SparkHealthService()
     }
 
-    private func runAddUser() {
-        run {
-            let user = try await userManager.addUser(email: email, password: password)
-            userId = user.id
-            return "addUser ✓\nid: \(user.id)\nemail: \(user.email)"
-        }
+    private func autofill(with account: TestAccount) {
+        email?.wrappedValue = account.email
+        password?.wrappedValue = account.password
+        confirmPassword?.wrappedValue = account.password
+        dismiss()
     }
 
-    private func runGetUser() {
-        run {
-            let user = try await userManager.getUser(userId: userId)
-            return "getUser ✓\nid: \(user.id)\nemail: \(user.email)"
-        }
-    }
+    private func logout() {
+        dismiss()
 
-    private func run(_ operation: @escaping () async throws -> String) {
-        isRunning = true
-        output = ""
+        // Let the sheet finish its dismiss animation before tearing down the
+        // session, so the menu visibly closes first and then we log out.
         Task {
-            do {
-                output = try await operation()
-            } catch {
-                output = "✗ \(error.localizedDescription)"
-            }
-            isRunning = false
+            try? await Task.sleep(for: .seconds(0.35))
+            userManager.logout()
+            appState.updateState(option: .auth)
         }
     }
 }
 
+struct TestAccount: Identifiable {
+    let id = UUID()
+    let label: String
+    let email: String
+    let password: String
+
+    static let presets: [TestAccount] = [
+        TestAccount(label: "User 1", email: "example@gmail.com", password: "pass1234!"),
+        TestAccount(label: "User 2", email: "user2@gmail.com", password: "pass1234!"),
+    ]
+}
+
 #Preview {
-    DevMenuView(email: "test@example.com", password: "secret")
+    DevMenuView()
         .previewEnvironment()
 }
 #endif

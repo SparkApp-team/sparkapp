@@ -13,14 +13,40 @@ import Foundation
 class UsersManager {
     var service: UserService
     private let logManager: LogManager?
+    var currentUser: UserDataModel? = nil
 
     init(service: UserService, logManager: LogManager? = nil) {
         self.service = service
         self.logManager = logManager
     }
 
+    func login(email: String, password: String) async throws {
+        logManager?.trackEvent(event: Event.loginStart)
+        do {
+            let user = try await service.login(email: email, password: password)
+            persistSession(user)
+            logManager?.trackEvent(event: Event.loginSuccess(user: user))
+        } catch {
+            logManager?.trackEvent(event: Event.loginFail(error: error))
+            throw error
+        }
+    }
+
+    func registerUser(email: String, password: String) async throws -> UserDataModel {
+        logManager?.trackEvent(event: Event.registerUserStart)
+        do {
+            let user = try await service.registerUser(email: email, password: password)
+            persistSession(user)
+            logManager?.trackEvent(event: Event.registerUserSuccess(user: user))
+            return user
+        } catch {
+            logManager?.trackEvent(event: Event.registerUserFail(error: error))
+            throw error
+        }
+    }
+
     func getUser(userId: String) async throws -> UserDataModel {
-        logManager?.trackEvent(event: Event.getUserStart)
+        logManager?.trackEvent(event: Event.getUserStart(userId: userId))
         do {
             let user = try await service.getUser(userId: userId)
             logManager?.trackEvent(event: Event.getUserSuccess(user: user))
@@ -31,44 +57,83 @@ class UsersManager {
         }
     }
 
-    func addUser(email: String, password: String) async throws -> UserDataModel {
-        logManager?.trackEvent(event: Event.addUserStart)
-        do {
-            let user = try await service.addUser(email: email, password: password)
-            logManager?.trackEvent(event: Event.addUserSuccess(user: user))
-            return user
-        } catch {
-            logManager?.trackEvent(event: Event.addUserFail(error: error))
-            throw error
+    @discardableResult
+    func restoreSession() async -> Bool {
+        logManager?.trackEvent(event: Event.restoreSessionStart)
+        guard let userId = UserDefaults.currentUserId else {
+            logManager?.trackEvent(event: Event.restoreSessionEmpty)
+            return false
         }
+        do {
+            let user = try await getUser(userId: userId)
+            currentUser = user
+            logManager?.trackEvent(event: Event.restoreSessionSuccess(user: user))
+            return true
+        } catch {
+            logManager?.trackEvent(event: Event.restoreSessionFail(error: error))
+            return false
+        }
+    }
+
+    func logout() {
+        logManager?.trackEvent(event: Event.logout)
+        currentUser = nil
+        UserDefaults.currentUserId = nil
+    }
+
+    private func persistSession(_ user: UserDataModel) {
+        currentUser = user
+        UserDefaults.currentUserId = user.id
+        logManager?.trackEvent(event: Event.persistSession(user: user))
     }
 }
 
 extension UsersManager {
     enum Event: LoggableEvent {
-        case getUserStart
+        case loginStart
+        case loginSuccess(user: UserDataModel)
+        case loginFail(error: Error)
+        case registerUserStart
+        case registerUserSuccess(user: UserDataModel)
+        case registerUserFail(error: Error)
+        case getUserStart(userId: String)
         case getUserSuccess(user: UserDataModel)
         case getUserFail(error: Error)
-        case addUserStart
-        case addUserSuccess(user: UserDataModel)
-        case addUserFail(error: Error)
+        case restoreSessionStart
+        case restoreSessionEmpty
+        case restoreSessionSuccess(user: UserDataModel)
+        case restoreSessionFail(error: Error)
+        case persistSession(user: UserDataModel)
+        case logout
 
         var eventName: String {
             switch self {
-            case .getUserStart:   "UsersManager_GetUser_Start"
-            case .getUserSuccess: "UsersManager_GetUser_Success"
-            case .getUserFail:    "UsersManager_GetUser_Fail"
-            case .addUserStart:   "UsersManager_AddUser_Start"
-            case .addUserSuccess: "UsersManager_AddUser_Success"
-            case .addUserFail:    "UsersManager_AddUser_Fail"
+            case .loginStart:            "UsersManager_Login_Start"
+            case .loginSuccess:          "UsersManager_Login_Success"
+            case .loginFail:             "UsersManager_Login_Fail"
+            case .registerUserStart:     "UsersManager_RegisterUser_Start"
+            case .registerUserSuccess:   "UsersManager_RegisterUser_Success"
+            case .registerUserFail:      "UsersManager_RegisterUser_Fail"
+            case .getUserStart:          "UsersManager_GetUser_Start"
+            case .getUserSuccess:        "UsersManager_GetUser_Success"
+            case .getUserFail:           "UsersManager_GetUser_Fail"
+            case .restoreSessionStart:   "UsersManager_RestoreSession_Start"
+            case .restoreSessionEmpty:   "UsersManager_RestoreSession_Empty"
+            case .restoreSessionSuccess: "UsersManager_RestoreSession_Success"
+            case .restoreSessionFail:    "UsersManager_RestoreSession_Fail"
+            case .persistSession:        "UsersManager_PersistSession"
+            case .logout:                "UsersManager_Logout"
             }
         }
 
         var parameters: [String: Any]? {
             switch self {
-            case .getUserSuccess(let user), .addUserSuccess(let user):
+            case .loginSuccess(let user), .registerUserSuccess(let user),
+                 .getUserSuccess(let user), .restoreSessionSuccess(let user),
+                 .persistSession(let user):
                 user.eventParameters
-            case .getUserFail(let error), .addUserFail(let error):
+            case .loginFail(let error), .registerUserFail(let error),
+                 .getUserFail(let error), .restoreSessionFail(let error):
                 ["error": error.localizedDescription]
             default:
                 nil
@@ -77,9 +142,24 @@ extension UsersManager {
 
         var type: LogType {
             switch self {
-            case .getUserFail, .addUserFail: .severe
-            default: .analytic
+            case .loginFail, .registerUserFail, .getUserFail, .restoreSessionFail:
+                    .severe
+            default:
+                    .analytic
             }
         }
+    }
+}
+
+extension UserDefaults {
+    private enum Keys {
+        static let currentUserId = "currentUserIdKey"
+    }
+
+    /// The signed-in user's id, persisted across launches and used like a
+    /// session token (sent as the `X-USER-ID` header).
+    static var currentUserId: String? {
+        get { standard.string(forKey: Keys.currentUserId) }
+        set { standard.set(newValue, forKey: Keys.currentUserId) }
     }
 }
