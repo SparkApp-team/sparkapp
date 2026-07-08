@@ -18,7 +18,7 @@ struct AppView: View {
                 SplashView(viewModel: SplashViewModel(container: container))
             },
             auth: {
-                LoginView()
+                LoginView(viewModel: LoginViewModel(container: container))
             },
             content: {
                 HabitsListView()

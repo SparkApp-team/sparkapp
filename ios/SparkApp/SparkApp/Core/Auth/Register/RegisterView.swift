@@ -8,19 +8,10 @@
 import SwiftUI
 
 struct RegisterView: View {
-    @Environment(AppState.self) private var root
-    @Environment(UserManager.self) private var userManager
-    @Environment(LogManager.self) private var logManager
+    @Environment(DependencyContainer.self) private var container
     @Environment(\.dismiss) private var dismiss
 
-    @State var email: String = ""
-    @State var password: String = ""
-    @State var confirmPassword: String = ""
-    @State private var errorMessage: String?
-
-    private var passwordsMatch: Bool {
-        !password.isEmpty && password == confirmPassword
-    }
+    @State var viewModel: RegisterViewModel
 
     var body: some View {
         VStack {
@@ -31,7 +22,9 @@ struct RegisterView: View {
             ctaButtons
         }
         .background(AppColors.P2.background)
-        .devMenuToolbar(email: $email, password: $password, confirmPassword: $confirmPassword)
+        .devMenuToolbar(email: $viewModel.email,
+                        password: $viewModel.password,
+                        confirmPassword: $viewModel.confirmPassword)
     }
 
     private var registerForm: some View {
@@ -45,22 +38,22 @@ struct RegisterView: View {
                 FloatingTextField(
                     leftIcon: "person.fill",
                     placeholder: "Email",
-                    text: $email
+                    text: $viewModel.email
                 )
 
                 FloatingSecureTextField(
                     leftIcon: "lock.fill",
                     placeholder: "Password",
-                    text: $password
+                    text: $viewModel.password
                 )
 
                 FloatingSecureTextField(
                     leftIcon: "lock.fill",
                     placeholder: "Confirm Password",
-                    text: $confirmPassword
+                    text: $viewModel.confirmPassword
                 )
 
-                if let errorMessage {
+                if let errorMessage = viewModel.errorMessage {
                     Text(errorMessage)
                         .foregroundStyle(AppColors.P2.primary)
                         .font(.callout)
@@ -75,7 +68,7 @@ struct RegisterView: View {
             Text("Register")
                 .callToActionButton()
                 .anyButton {
-                    onRegisterPressed()
+                    viewModel.onRegisterPressed()
                 }
 
             HStack(spacing: 4) {
@@ -93,35 +86,11 @@ struct RegisterView: View {
         .padding(.horizontal)
         .padding(.top, 10)
     }
-
-    private func onRegisterPressed() {
-        guard passwordsMatch else {
-            errorMessage = "Passwords don't match."
-            return
-        }
-
-        Task {
-            do {
-                errorMessage = nil
-                _ = try await userManager.registerUser(email: email, password: password)
-                // NOTE: registerUser returns the user but does not set
-                // UsersManager.currentUser (unlike login). See summary.
-                root.updateState(option: .content)
-            } catch let error as APIError {
-                errorMessage = error.errorDescription
-                logManager.trackEvent(
-                    eventName: "Error: \(error)",
-                    parameters: ["Message": error.errorDescription ?? "No message"]
-                )
-            }
-        }
-    }
 }
 
 #Preview {
     NavigationStack {
-        RegisterView(email: "", password: "")
-            .environment(AppState())
+        RegisterView(viewModel: RegisterViewModel(container: DevPreview.shared.container))
             .previewEnvironment()
     }
 }
