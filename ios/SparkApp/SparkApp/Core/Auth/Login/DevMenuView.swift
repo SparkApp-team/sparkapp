@@ -10,12 +10,10 @@ import SwiftUI
 
 struct DevMenuView: View {
     @Environment(\.dismiss) private var dismiss
-    @Environment(HealthManager.self) private var healthManager
-    @Environment(AppState.self) private var appState
-    @Environment(UsersManager.self) private var userManager
+    private var healthManager: HealthManager
+    private var userManager: UserManager
+    private var appState: AppState
 
-    /// Optional bindings to the host screen's auth fields.
-    /// When provided, the "Test Accounts" section can autofill them.
     var email: Binding<String>?
     var password: Binding<String>?
     var confirmPassword: Binding<String>?
@@ -24,6 +22,20 @@ struct DevMenuView: View {
 
     private var canAutofill: Bool {
         email != nil || password != nil
+    }
+
+    init(
+        container: DependencyContainer,
+        email: Binding<String>? = nil,
+        password: Binding<String>? = nil,
+        confirmPassword: Binding<String>? = nil
+    ) {
+        self.healthManager = container.resolve(HealthManager.self)!
+        self.userManager = container.resolve(UserManager.self)!
+        self.appState = container.resolve(AppState.self)!
+        self.email = email
+        self.password = password
+        self.confirmPassword = confirmPassword
     }
 
     var body: some View {
@@ -150,7 +162,7 @@ struct TestAccount: Identifiable {
 }
 
 #Preview {
-    DevMenuView()
+    DevMenuView(container: DevPreview.shared.container)
         .previewEnvironment()
 }
 #endif

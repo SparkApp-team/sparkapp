@@ -8,19 +8,13 @@
 import SwiftUI
 
 struct LoginView: View {
-    @Environment(AppState.self) private var root
-    @Environment(UsersManager.self) private var userManager
-    @Environment(LogManager.self) private var logManager
+    @Environment(DependencyContainer.self) private var container
+    @State var viewModel: LoginViewModel
 
     private enum Field {
         case email
         case password
     }
-
-    @State var email: String = ""
-    @State var password: String = ""
-    @State private var errorMessage: String?
-    //@FocusState private var focusedField: Field?
 
     var body: some View {
         NavigationStack {
@@ -32,7 +26,8 @@ struct LoginView: View {
                 ctaButtons
             }
             .background(AppColors.P2.background)
-            .devMenuToolbar(email: $email, password: $password)
+            .devMenuToolbar(email: $viewModel.email,
+                            password: $viewModel.password)
         }
     }
 
@@ -47,16 +42,16 @@ struct LoginView: View {
                 FloatingTextField(
                     leftIcon: "person.fill",
                     placeholder: "Email",
-                    text: $email
+                    text: $viewModel.email
                 )
                 
                 FloatingSecureTextField(
                     leftIcon: "lock.fill",
                     placeholder: "Password",
-                    text: $password
+                    text: $viewModel.password
                 )
 
-                if let errorMessage {
+                if let errorMessage = viewModel.errorMessage {
                     Text(errorMessage)
                         .foregroundStyle(AppColors.P2.primary)
                         .font(.callout)
@@ -71,7 +66,7 @@ struct LoginView: View {
             Text("Login")
                 .callToActionButton()
                 .anyButton {
-                    onLoginPressed()
+                    viewModel.onLoginPressed()
                 }
     
             HStack(spacing: 4) {
@@ -80,7 +75,7 @@ struct LoginView: View {
                     .font(.callout)
                 
                 NavigationLink {
-                    RegisterView()
+                    RegisterView(viewModel: RegisterViewModel(container: container))
                 } label: {
                     Text("Register Now")
                         .foregroundStyle(AppColors.P2.secondary)
@@ -91,25 +86,9 @@ struct LoginView: View {
         .padding(.horizontal)
         .padding(.top, 10)
     }
-
-    private func onLoginPressed() {
-        Task {
-            do {
-                errorMessage = nil
-                try await userManager.login(email: email, password: password)
-                if let _ = userManager.currentUser {
-                    root.updateState(option: .content)
-                }
-            } catch let error as APIError {
-                errorMessage = error.errorDescription
-                logManager.trackEvent(eventName: "Error: \(error)", parameters: ["Message": error.errorDescription ?? "No message"])
-            }
-        }
-    }
 }
 
 #Preview {
-    LoginView(email: "", password: "")
-        .environment(AppState())
+    LoginView(viewModel: LoginViewModel(container: DevPreview.shared.container))
         .previewEnvironment()
 }

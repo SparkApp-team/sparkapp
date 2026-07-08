@@ -10,7 +10,7 @@ import Foundation
 
 @MainActor
 @Observable
-class UsersManager {
+class UserManager {
     var service: UserService
     private let logManager: LogManager?
     var currentUser: UserDataModel? = nil
@@ -88,7 +88,7 @@ class UsersManager {
     }
 }
 
-extension UsersManager {
+extension UserManager {
     enum Event: LoggableEvent {
         case loginStart
         case loginSuccess(user: UserDataModel)

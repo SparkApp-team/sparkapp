@@ -10,13 +10,14 @@ import SwiftUI
 /// Adds a leading toolbar button that presents the `DevMenuView`.
 /// Compiled out entirely in release builds.
 private struct DevMenuToolbar: ViewModifier {
+    #if DEBUG
+    @Environment(DependencyContainer.self) private var container
+    @State private var showDevMenu = false
+    #endif
+
     let email: Binding<String>?
     let password: Binding<String>?
     let confirmPassword: Binding<String>?
-
-    #if DEBUG
-    @State private var showDevMenu = false
-    #endif
 
     func body(content: Content) -> some View {
         #if DEBUG
@@ -31,7 +32,12 @@ private struct DevMenuToolbar: ViewModifier {
                 }
             }
             .sheet(isPresented: $showDevMenu) {
-                DevMenuView(email: email, password: password, confirmPassword: confirmPassword)
+                DevMenuView(
+                    container: container,
+                    email: email,
+                    password: password,
+                    confirmPassword: confirmPassword
+                )
             }
         #else
         content
