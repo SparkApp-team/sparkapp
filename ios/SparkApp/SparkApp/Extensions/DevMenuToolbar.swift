@@ -32,7 +32,12 @@ private struct DevMenuToolbar: ViewModifier {
                 }
             }
             .sheet(isPresented: $showDevMenu) {
-                DevMenuView(email: email, password: password, confirmPassword: confirmPassword)
+                DevMenuView(
+                    container: container,
+                    email: email,
+                    password: password,
+                    confirmPassword: confirmPassword
+                )
             }
         #else
         content

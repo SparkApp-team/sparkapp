@@ -8,31 +8,25 @@
 import SwiftUI
 
 struct HabitsListView: View {
-    
-    @Environment(HealthManager.self) private var healthManager
-    @Environment(HabitManager.self) private var habitManager
-    @Environment(UserManager.self) private var userManager
-    @Environment(LogManager.self) private var logManager
 
-    @State private var health: ServerHealthDataModel = .goodMock
-    @State private var habits: [HabitDataModel] = []
-    @State private var isLoading: Bool = false
+    @Environment(DependencyContainer.self) private var container
+    @State var viewModel: HabitsListViewModel
     @State private var showAddHabit: Bool = false
-    
+
     var body: some View {
         NavigationStack {
             ZStack {
                 AppColors.P2.background
                     .ignoresSafeArea()
-                
-                if health.status != .good {
+
+                if viewModel.health.status != .good {
                     badServerStatus
                 } else {
                     Group {
-                        if isLoading {
+                        if viewModel.isLoading {
                             loadingHabitsView
                         } else {
-                            if habits.isEmpty {
+                            if viewModel.habits.isEmpty {
                                 emptyHabitsView
                             } else {
                                 habitsView
@@ -55,50 +49,12 @@ struct HabitsListView: View {
                 addHabitSheet
             }
             .task {
-                await checkServerHealth()
-                await loadHabits()
+                await viewModel.checkServerHealth()
+                await viewModel.loadHabits()
             }
         }
     }
-    
-    private func loadHabits() async {
-        do {
-            guard let userId = userManager.currentUser?.id else {
-                logManager.trackEvent(
-                    eventName: "HabitsView_LoadHabits_NoUser",
-                    type: .warning
-                )
-                return
-            }
 
-            habits = try await habitManager.getHabitsForUser(userId: userId)
-        } catch {
-            logManager.trackEvent(
-                eventName: "HabitsView_LoadHabits_Fail",
-                parameters: ["error": error.localizedDescription],
-                type: .severe
-            )
-        }
-    }
-
-    private func checkServerHealth() async {
-        do {
-            health = try await healthManager.getServerHealth()
-            logManager.trackEvent(
-                eventName: "HabitsView_ServerHealth",
-                parameters: ["status": health.status.rawValue],
-                type: .info
-            )
-        } catch {
-            health = ServerHealthDataModel(status: .bad)
-            logManager.trackEvent(
-                eventName: "HabitsView_ServerHealth_Fail",
-                parameters: ["error": error.localizedDescription],
-                type: .severe
-            )
-        }
-    }
-    
     private var loadingHabitsView: some View {
         VStack {
             ProgressView()
@@ -111,7 +67,7 @@ struct HabitsListView: View {
     
     private var habitsView: some View {
         List {
-            ForEach(habits, id: \.self ) { habit in
+            ForEach(viewModel.habits, id: \.self ) { habit in
                 HStack {
                     Text(habit.name)
                         .foregroundColor(AppColors.P2.textPrimary)
@@ -146,11 +102,11 @@ struct HabitsListView: View {
     
     private var serverHealthButton: some View {
         Button {
-            Task { await checkServerHealth() }
+            Task { await viewModel.checkServerHealth() }
         } label: {
             Label("Health", systemImage: "checkmark.icloud.fill")
         }
-        .tint(health.status.color)
+        .tint(viewModel.health.status.color)
     }
 
     private var addHabitButton: some View {
@@ -162,25 +118,34 @@ struct HabitsListView: View {
     }
 
     private var addHabitSheet: some View {
-        AddHabitView {
-            Task { await loadHabits() }
+        AddHabitView(viewModel: AddHabitViewModel(container: container)) {
+            Task { await viewModel.loadHabits() }
         }
     }
 }
 
 #Preview("Has data") {
-    HabitsListView()
+    let container = DevPreview.shared.container
+
+    return HabitsListView(viewModel: HabitsListViewModel(container: container))
+        .environment(container)
         .previewEnvironment()
 }
 
 #Preview("No data") {
-    HabitsListView()
-        .environment(HabitManager(service: MockHabitService(habits: [])))
+    let container = DevPreview.shared.container
+    container.register(HabitManager.self, service: HabitManager(service: MockHabitService(habits: [])))
+
+    return HabitsListView(viewModel: HabitsListViewModel(container: container))
+        .environment(container)
         .previewEnvironment()
 }
 
 #Preview("Bad status") {
-    HabitsListView()
-        .environment(HealthManager(service: MockHealthService(health: .badMock)))
+    let container = DevPreview.shared.container
+    container.register(HealthManager.self, service: HealthManager(service: MockHealthService(health: .badMock)))
+
+    return HabitsListView(viewModel: HabitsListViewModel(container: container))
+        .environment(container)
         .previewEnvironment()
 }

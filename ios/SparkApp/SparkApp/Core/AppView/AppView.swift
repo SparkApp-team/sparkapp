@@ -21,7 +21,7 @@ struct AppView: View {
                 LoginView(viewModel: LoginViewModel(container: container))
             },
             content: {
-                HabitsListView()
+                HabitsListView(viewModel: HabitsListViewModel(container: container))
             }
         )
     }
@@ -29,7 +29,7 @@ struct AppView: View {
 
 #Preview("Launch") {
     let container = DevPreview.shared.container
-    container.register(AppState(option: .launch))
+    container.register(AppState.self, service: AppState(option: .launch))
 
     return AppView(viewModel: AppViewModel(container: container))
         .previewEnvironment()
@@ -37,7 +37,7 @@ struct AppView: View {
 
 #Preview("Auth") {
     let container = DevPreview.shared.container
-    container.register(AppState(option: .auth))
+    container.register(AppState.self, service: AppState(option: .auth))
 
     return AppView(viewModel: AppViewModel(container: container))
         .previewEnvironment()
@@ -45,7 +45,7 @@ struct AppView: View {
 
 #Preview("Content") {
     let container = DevPreview.shared.container
-    container.register(AppState(option: .content))
+    container.register(AppState.self, service: AppState(option: .content))
 
     return AppView(viewModel: AppViewModel(container: container))
         .previewEnvironment()

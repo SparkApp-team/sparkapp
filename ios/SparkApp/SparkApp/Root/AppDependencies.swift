@@ -39,11 +39,11 @@ struct AppDependencies {
         appState = AppState()
 
         let container = DependencyContainer()
-        container.register(healthManager)
-        container.register(habitManager)
-        container.register(userManager)
-        container.register(logManager)
-        container.register(appState)
+        container.register(HealthManager.self, service: healthManager)
+        container.register(HabitManager.self, service: habitManager)
+        container.register(UserManager.self, service: userManager)
+        container.register(LogManager.self, service: logManager)
+        container.register(AppState.self, service: appState)
         self.container = container
     }
 }
@@ -65,11 +65,11 @@ class DevPreview {
 
     var container: DependencyContainer {
         let container = DependencyContainer()
-        container.register(healthManager)
-        container.register(habitManager)
-        container.register(userManager)
-        container.register(logManager)
-        container.register(appState)
+        container.register(HealthManager.self, service: healthManager)
+        container.register(HabitManager.self, service: habitManager)
+        container.register(UserManager.self, service: userManager)
+        container.register(LogManager.self, service: logManager)
+        container.register(AppState.self, service: appState)
         return container
     }
 

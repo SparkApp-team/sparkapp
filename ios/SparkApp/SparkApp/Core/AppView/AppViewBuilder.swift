@@ -19,17 +19,21 @@ struct AppViewBuilder<AuthView: View, ContentView: View, LaunchView: View>: View
         ZStack {
             switch option {
             case .launch:
-                launch
-                    .transition(.move(edge: .leading))
+                launch.transition(pushTransition)
             case .auth:
-                auth
-                    .transition(.move(edge: .trailing))
+                auth.transition(pushTransition)
             case .content:
-                content
-                    .transition(.move(edge: .leading))
+                content.transition(pushTransition)
             }
         }
         .animation(.smooth, value: option)
         .ignoresSafeArea()
+    }
+
+    private var pushTransition: AnyTransition {
+        .asymmetric(
+            insertion: .move(edge: .trailing),
+            removal: .move(edge: .leading)
+        )
     }
 }
