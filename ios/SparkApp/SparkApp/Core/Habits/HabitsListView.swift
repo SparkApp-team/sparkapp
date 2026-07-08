@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct HabitsView: View {
+struct HabitsListView: View {
     
     @Environment(HealthManager.self) private var healthManager
     @Environment(HabitManager.self) private var habitManager
@@ -169,18 +169,18 @@ struct HabitsView: View {
 }
 
 #Preview("Has data") {
-    HabitsView()
+    HabitsListView()
         .previewEnvironment()
 }
 
 #Preview("No data") {
-    HabitsView()
+    HabitsListView()
         .environment(HabitManager(service: MockHabitService(habits: [])))
         .previewEnvironment()
 }
 
 #Preview("Bad status") {
-    HabitsView()
+    HabitsListView()
         .environment(HealthManager(service: MockHealthService(health: .badMock)))
         .previewEnvironment()
 }

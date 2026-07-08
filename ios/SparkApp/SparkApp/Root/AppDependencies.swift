@@ -1,71 +1,21 @@
 //
-//  SparkAppApp.swift
+//  AppDependencies.swift
 //  SparkApp
 //
-//  Created by Dmitro Kryzhanovsky on 22.11.2025.
+//  Created by Dmitro Kryzhanovsky on 08.07.2026.
 //
 
 import SwiftUI
 
-@main
-struct SparkAppApp: App {
-    @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
-    
-    var body: some Scene {
-        WindowGroup {
-            AppView()
-                .environment(AppState())
-                .environment(delegate.dependencies.healthManager)
-                .environment(delegate.dependencies.userManager)
-                .environment(delegate.dependencies.habitManager)
-                .environment(delegate.dependencies.logManager)
-        }
-    }
-}
-
-class AppDelegate: NSObject, UIApplicationDelegate {
-    var dependencies: AppDependencies!
-    
-    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
-        let config: BuildConfiguration
-        
-        #if MOCK
-        config = .mock(isSignedIn: true)
-        #elseif DEV
-        config = .dev
-        #else
-        config = .prod
-        #endif
-        
-        config.configure()
-        dependencies = AppDependencies(config)
-        return true
-    }
-}
-
-enum BuildConfiguration {
-    case mock(isSignedIn: Bool), dev, prod
-    
-    // For dev + prod add a configurations for api.
-    func configure() {
-        switch self {
-        case .mock:
-            break
-        case .dev:
-            break
-        case .prod:
-            break
-        }
-    }
-}
-
 @MainActor
 struct AppDependencies {
-    
+
+    var container: DependencyContainer
     let healthManager: HealthManager
     let habitManager: HabitManager
     let userManager: UsersManager
     let logManager: LogManager
+    let appState: AppState
 
     init(_ config: BuildConfiguration) {
         switch config {
@@ -85,6 +35,16 @@ struct AppDependencies {
             userManager   = UsersManager(service: SparkUserService(), logManager: logManager)
             habitManager  = HabitManager(service: SparkHabitService(), logManager: logManager)
         }
+
+        appState = AppState()
+
+        let container = DependencyContainer()
+        container.register(healthManager)
+        container.register(habitManager)
+        container.register(userManager)
+        container.register(logManager)
+        container.register(appState)
+        self.container = container
     }
 }
 
@@ -96,5 +56,34 @@ extension View {
             .environment(UsersManager(service: MockUserService()))
             .environment(LogManager(services: [ConsoleService(printParameters: false)]))
             .environment(AppState())
+    }
+}
+
+@MainActor
+class DevPreview {
+    static let shared = DevPreview()
+
+    var container: DependencyContainer {
+        let container = DependencyContainer()
+        container.register(healthManager)
+        container.register(habitManager)
+        container.register(userManager)
+        container.register(logManager)
+        container.register(appState)
+        return container
+    }
+
+    let healthManager: HealthManager
+    let habitManager: HabitManager
+    let userManager: UsersManager
+    let logManager: LogManager
+    let appState: AppState
+
+    init() {
+        self.healthManager = HealthManager(service: MockHealthService())
+        self.habitManager = HabitManager(service: MockHabitService())
+        self.userManager = UsersManager(service: MockUserService())
+        self.logManager = LogManager(services: [])
+        self.appState = AppState()
     }
 }
