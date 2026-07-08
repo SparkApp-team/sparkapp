@@ -15,7 +15,7 @@ struct AppView: View {
         AppViewBuilder(
             option: viewModel.stateOption,
             launch: {
-                SplashView()
+                SplashView(viewModel: SplashViewModel(container: container))
             },
             auth: {
                 LoginView()

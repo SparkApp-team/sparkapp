@@ -9,7 +9,7 @@ import SwiftUI
 
 struct RegisterView: View {
     @Environment(AppState.self) private var root
-    @Environment(UsersManager.self) private var userManager
+    @Environment(UserManager.self) private var userManager
     @Environment(LogManager.self) private var logManager
     @Environment(\.dismiss) private var dismiss
 

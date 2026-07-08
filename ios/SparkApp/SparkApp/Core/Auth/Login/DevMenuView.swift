@@ -12,7 +12,7 @@ struct DevMenuView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(HealthManager.self) private var healthManager
     @Environment(AppState.self) private var appState
-    @Environment(UsersManager.self) private var userManager
+    @Environment(UserManager.self) private var userManager
 
     /// Optional bindings to the host screen's auth fields.
     /// When provided, the "Test Accounts" section can autofill them.

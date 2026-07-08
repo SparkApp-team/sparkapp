@@ -19,6 +19,4 @@ class AppViewModel {
     init(container: DependencyContainer) {
         self.appState = container.resolve(AppState.self)!
     }
-
-    
 }

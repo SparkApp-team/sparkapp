@@ -13,7 +13,7 @@ struct AppDependencies {
     var container: DependencyContainer
     let healthManager: HealthManager
     let habitManager: HabitManager
-    let userManager: UsersManager
+    let userManager: UserManager
     let logManager: LogManager
     let appState: AppState
 
@@ -22,17 +22,17 @@ struct AppDependencies {
         case .mock:
             logManager    = LogManager(services: [ConsoleService(printParameters: false)])
             healthManager = HealthManager(service: MockHealthService(), logManager: logManager)
-            userManager   = UsersManager(service: MockUserService(), logManager: logManager)
+            userManager   = UserManager(service: MockUserService(), logManager: logManager)
             habitManager  = HabitManager(service: MockHabitService(), logManager: logManager)
         case .dev:
             logManager    = LogManager(services: [ConsoleService(printParameters: true)])
             healthManager = HealthManager(service: SparkHealthService(), logManager: logManager)
-            userManager   = UsersManager(service: SparkUserService(), logManager: logManager)
+            userManager   = UserManager(service: SparkUserService(), logManager: logManager)
             habitManager  = HabitManager(service: SparkHabitService(), logManager: logManager)
         case .prod:
             logManager    = LogManager(services: [ConsoleService(printParameters: true)])
             healthManager = HealthManager(service: SparkHealthService(), logManager: logManager)
-            userManager   = UsersManager(service: SparkUserService(), logManager: logManager)
+            userManager   = UserManager(service: SparkUserService(), logManager: logManager)
             habitManager  = HabitManager(service: SparkHabitService(), logManager: logManager)
         }
 
@@ -53,7 +53,7 @@ extension View {
         self
             .environment(HealthManager(service: MockHealthService()))
             .environment(HabitManager(service: MockHabitService()))
-            .environment(UsersManager(service: MockUserService()))
+            .environment(UserManager(service: MockUserService()))
             .environment(LogManager(services: [ConsoleService(printParameters: false)]))
             .environment(AppState())
     }
@@ -75,14 +75,14 @@ class DevPreview {
 
     let healthManager: HealthManager
     let habitManager: HabitManager
-    let userManager: UsersManager
+    let userManager: UserManager
     let logManager: LogManager
     let appState: AppState
 
     init() {
         self.healthManager = HealthManager(service: MockHealthService())
         self.habitManager = HabitManager(service: MockHabitService())
-        self.userManager = UsersManager(service: MockUserService())
+        self.userManager = UserManager(service: MockUserService())
         self.logManager = LogManager(services: [])
         self.appState = AppState()
     }

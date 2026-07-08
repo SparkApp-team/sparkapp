@@ -11,7 +11,7 @@ struct HabitsListView: View {
     
     @Environment(HealthManager.self) private var healthManager
     @Environment(HabitManager.self) private var habitManager
-    @Environment(UsersManager.self) private var userManager
+    @Environment(UserManager.self) private var userManager
     @Environment(LogManager.self) private var logManager
 
     @State private var health: ServerHealthDataModel = .goodMock
