@@ -12,17 +12,12 @@ import SwiftUI
 class AddHabitViewModel {
     private let habitManager: HabitManager
     private let userManager: UserManager
-
+    private let logManager: LogManager
+    
     var name: String = ""
-    var frequency: Frequency = .daily
+    var frequency: HabitFrequency = .daily
     private(set) var isSaving: Bool = false
     private(set) var errorMessage: String?
-
-    enum Frequency: String, CaseIterable, Identifiable {
-        case daily, weekly, monthly
-        var id: String { rawValue }
-        var title: String { rawValue.capitalized }
-    }
 
     var canSave: Bool {
         !name.trimmingCharacters(in: .whitespaces).isEmpty
@@ -31,15 +26,16 @@ class AddHabitViewModel {
     init(container: DependencyContainer) {
         self.habitManager = container.resolve(HabitManager.self)!
         self.userManager = container.resolve(UserManager.self)!
+        self.logManager = container.resolve(LogManager.self)!
     }
 
-    /// Creates the habit and, on success, invokes `onSuccess` so the view can
-    /// reload the caller and dismiss.
     func save(onSuccess: @escaping () -> Void) {
         guard let userId = userManager.currentUser?.id else {
             errorMessage = "No signed-in user."
             return
         }
+        
+        let name = name.trimmingCharacters(in: .whitespacesAndNewlines)
 
         Task {
             isSaving = true
@@ -47,15 +43,15 @@ class AddHabitViewModel {
             do {
                 errorMessage = nil
                 _ = try await habitManager.createHabit(
-                    name: name.trimmingCharacters(in: .whitespaces),
+                    name: name,
                     frequency: frequency.rawValue,
                     userId: userId
                 )
                 onSuccess()
-            } catch let error as APIError {
-                errorMessage = error.errorDescription
             } catch {
-                errorMessage = "Something went wrong. Please try again."
+                errorMessage = error.localizedDescription
+                logManager.trackEvent(eventName: "Error: \(error)",
+                                      parameters: ["Message": error.localizedDescription])
             }
         }
     }
