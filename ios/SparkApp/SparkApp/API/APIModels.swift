@@ -23,7 +23,7 @@ struct Endpoint {
     var body: Data? = nil
 }
 
-enum APIError: Error {
+enum APIError: Error, LocalizedError {
     case invalidURL
     case badResponse(statusCode: Int, message: String?, data: Data)
 

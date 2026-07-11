@@ -27,29 +27,29 @@ class RegisterViewModel {
     }
 
     func onRegisterPressed() {
-        do {
-            //Email validation
-            let validatedEmail = try validateEmail(email)
-            
-            //Password & Confirm password validation
-            let validatedPassword = try validatePassword(password)
-            let confirmPassword = try validatePassword(confirmPassword)
-            
-            //Password mismatch
-            if validatedPassword != confirmPassword {
-                errorMessage = "Passwords don't match."
-                return
-            }
-            
-            Task {
+        Task {
+            do {
+                //Email validation
+                let validatedEmail = try validateEmail(email)
+                
+                //Password & Confirm password validation
+                let validatedPassword = try validatePassword(password)
+                let confirmPassword = try validatePassword(confirmPassword)
+                
+                //Password mismatch
+                if validatedPassword != confirmPassword {
+                    errorMessage = "Passwords don't match."
+                    return
+                }
+                
                 errorMessage = nil
                 _ = try await userManager.registerUser(email: validatedEmail, password: validatedPassword)
                 appState.updateState(option: .content)
+            } catch {
+                errorMessage = error.localizedDescription
+                logManager.trackEvent(eventName: "Error: \(error)",
+                                      parameters: ["Message": error.localizedDescription])
             }
-        } catch {
-            errorMessage = error.localizedDescription
-            logManager.trackEvent(eventName: "Error: \(error)",
-                                  parameters: ["Message": error.localizedDescription])
         }
     }
     
