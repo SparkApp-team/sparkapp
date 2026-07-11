@@ -51,11 +51,7 @@ struct AppDependencies {
 extension View {
     func previewEnvironment(isSignedIn: Bool = true) -> some View {
         self
-            .environment(HealthManager(service: MockHealthService()))
-            .environment(HabitManager(service: MockHabitService()))
-            .environment(UserManager(service: MockUserService()))
-            .environment(LogManager(services: [ConsoleService(printParameters: false)]))
-            .environment(AppState())
+            .environment(DevPreview.shared.container)
     }
 }
 

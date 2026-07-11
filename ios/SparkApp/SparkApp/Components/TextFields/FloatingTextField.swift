@@ -56,5 +56,5 @@ struct FloatingTextField: View {
 
 #Preview {
     @Previewable @State var text: String = ""
-    FloatingTextField(leftIcon: "person.fill", rightIcon: nil, placeholder: "sometext", text: $text)
+    FloatingTextField(leftIcon: nil, rightIcon: "person.fill", placeholder: "sometext", text: $text)
 }
