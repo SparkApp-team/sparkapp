@@ -76,6 +76,15 @@ struct HabitsListView: View {
                 .listRowBackground(
                     AppColors.P2.secondaryBackground
                 )
+                .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                    Button(role: .destructive) {
+                        Task {
+                            await viewModel.deleteHabit(habit: habit)
+                        }
+                    } label: {
+                        Label("Delete", systemImage: "trash")
+                    }
+                }
             }
         }
         .scrollContentBackground(.hidden)

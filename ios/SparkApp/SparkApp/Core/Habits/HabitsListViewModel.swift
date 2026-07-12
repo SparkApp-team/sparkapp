@@ -47,6 +47,27 @@ class HabitsListViewModel {
             )
         }
     }
+    
+    func deleteHabit(habit: HabitDataModel) async {
+        do {
+            guard let userId = userManager.currentUser?.id else {
+                logManager.trackEvent(
+                    eventName: "HabitsView_DeleteHabits_NoUser",
+                    type: .warning
+                )
+                return
+            }
+
+            try await habitManager.deleteHabbit(id: habit.id, userId: userId)
+            await loadHabits()
+        } catch {
+            logManager.trackEvent(
+                eventName: "HabitsView_LoadHabits_Fail",
+                parameters: ["error": error.localizedDescription],
+                type: .severe
+            )
+        }
+    }
 
     func checkServerHealth() async {
         do {
