@@ -115,4 +115,47 @@ class AuthServiceTest {
 
         verify(fakeHashService).hashPassword("password123");
     }
+
+    @Test
+    void loginUserThrowsWhenEmailIsNotRegistered() {
+        var request = new LoginUserRequest("missing@example.com", "password123");
+        when(userRepository.findByEmail("missing@example.com")).thenReturn(Optional.empty());
+
+        assertThrows(InvalidCredentialsException.class, () -> authService.loginUser(request));
+
+        verifyNoInteractions(fakeHashService, fakeAuthService);
+    }
+
+    @Test
+    void loginUserThrowsWhenPasswordDoesNotMatch() {
+        var request = new LoginUserRequest("test@example.com", "wrong-password");
+        User user = new User();
+        user.setId(1L);
+        user.setEmail("test@example.com");
+        user.setPasswordHash("correct-hash");
+
+        when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(user));
+        when(fakeHashService.hashPassword("wrong-password")).thenReturn("wrong-hash");
+
+        assertThrows(InvalidCredentialsException.class, () -> authService.loginUser(request));
+        verifyNoInteractions(fakeAuthService);
+    }
+
+    @Test
+    void loginUserReturnsTokenAndEmailWhenCredentialsAreValid() {
+        var request = new LoginUserRequest("test@example.com", "password123");
+        User user = new User();
+        user.setId(1L);
+        user.setEmail("test@example.com");
+        user.setPasswordHash("hashed-password");
+
+        when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(user));
+        when(fakeHashService.hashPassword("password123")).thenReturn("hashed-password");
+        when(fakeAuthService.getCurrentUserToken(1L)).thenReturn("1");
+
+        var response = authService.loginUser(request);
+
+        assertEquals("1", response.userId());
+        assertEquals("test@example.com", response.email());
+    }
 }
