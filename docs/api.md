@@ -293,8 +293,23 @@ Example response:
 
 Error responses:
 
-- `400 Bad Request`: `habitId` is not a positive number.
+- `400 Bad Request`: `habitId` is zero or negative. The response message is `"Validation failed"`, with `fieldErrors.habitId` set to `"must be greater than 0"`.
 - `404 Not Found`: The habit does not exist or is not owned by the current user. The response message is `"Habit not found"`.
+
+Example invalid-ID response:
+
+```json
+{
+  "timestamp": "2026-07-12T10:15:30.123Z",
+  "status": 400,
+  "error": "Bad Request",
+  "message": "Validation failed",
+  "path": "/habits/0",
+  "fieldErrors": {
+    "habitId": "must be greater than 0"
+  }
+}
+```
 
 
 ### `PUT /habits/{habitId}`
@@ -340,7 +355,7 @@ Example response:
 
 Error responses:
 
-- `400 Bad Request`: `habitId` is not positive, or `name` or `frequency` is blank.
+- `400 Bad Request`: `habitId` is zero or negative, or `name` or `frequency` is blank. Invalid IDs produce `fieldErrors.habitId` as shown for `GET /habits/{habitId}`.
 - `404 Not Found`: The habit does not exist or is not owned by the current user. The response message is `"Habit not found"`.
 
 
@@ -368,7 +383,7 @@ Response:
 
 Error responses:
 
-- `400 Bad Request`: `habitId` is not a positive number.
+- `400 Bad Request`: `habitId` is zero or negative. Invalid IDs produce `fieldErrors.habitId` as shown for `GET /habits/{habitId}`.
 - `404 Not Found`: The habit does not exist or is not owned by the current user. The response message is `"Habit not found"`.
 
 

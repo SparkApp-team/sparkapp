@@ -3,6 +3,8 @@
 @otherUserId = 2
 @habitId = 1
 @missingHabitId = 999999
+@zeroHabitId = 0
+@negativeHabitId = -1
 
 ### Health check
 GET {{baseUrl}}/health
@@ -244,6 +246,11 @@ X-USER-ID: {{otherUserId}}
 GET {{baseUrl}}/habits/{{missingHabitId}}
 X-USER-ID: {{userId}}
 
+### Get habit with zero ID
+# Expected: 400 Bad Request with fieldErrors.habitId set to "must be greater than 0".
+GET {{baseUrl}}/habits/{{zeroHabitId}}
+X-USER-ID: {{userId}}
+
 ### Update habit
 # Expected: 200 OK when habit 1 belongs to user 1.
 PUT {{baseUrl}}/habits/{{habitId}}
@@ -277,10 +284,26 @@ X-USER-ID: {{userId}}
   "frequency": ""
 }
 
+### Update habit with negative ID
+# Expected: 400 Bad Request with fieldErrors.habitId set to "must be greater than 0".
+PUT {{baseUrl}}/habits/{{negativeHabitId}}
+Content-Type: application/json
+X-USER-ID: {{userId}}
+
+{
+  "name": "Exercise",
+  "frequency": "weekly"
+}
+
 ### Delete another user's habit
 # Expected: 404 Not Found because ownership is checked.
 DELETE {{baseUrl}}/habits/{{habitId}}
 X-USER-ID: {{otherUserId}}
+
+### Delete habit with zero ID
+# Expected: 400 Bad Request with fieldErrors.habitId set to "must be greater than 0".
+DELETE {{baseUrl}}/habits/{{zeroHabitId}}
+X-USER-ID: {{userId}}
 
 ### Delete habit
 # Expected: 204 No Content when habit 1 belongs to user 1.

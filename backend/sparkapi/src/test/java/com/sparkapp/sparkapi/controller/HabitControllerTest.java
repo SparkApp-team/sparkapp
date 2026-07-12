@@ -123,7 +123,9 @@ class HabitControllerTest {
         for (long habitId : new long[] {0L, -1L}) {
             mockMvc.perform(get("/habits/{habitId}", habitId)
                     .header("X-USER-ID", "7"))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Validation failed"))
+                .andExpect(jsonPath("$.fieldErrors.habitId").value("must be greater than 0"));
 
             mockMvc.perform(put("/habits/{habitId}", habitId)
                     .header("X-USER-ID", "7")

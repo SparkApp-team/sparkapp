@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.ConstraintViolationException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -45,6 +46,36 @@ public class GlobalExceptionHandler {
             fieldErrors
         );
         
+        return ResponseEntity
+            .status(status)
+            .body(response);
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<ApiErrorResponse> handleConstraintViolationException(
+        ConstraintViolationException exception,
+        HttpServletRequest request
+    ) {
+        Map<String, String> fieldErrors = new LinkedHashMap<>();
+
+        exception.getConstraintViolations().forEach(violation -> {
+            String propertyPath = violation.getPropertyPath().toString();
+            int lastDotIndex = propertyPath.lastIndexOf('.');
+            String field = propertyPath.substring(lastDotIndex + 1);
+            fieldErrors.putIfAbsent(field, violation.getMessage());
+        });
+
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+
+        ApiErrorResponse response = new ApiErrorResponse(
+            Instant.now(),
+            status.value(),
+            status.getReasonPhrase(),
+            "Validation failed",
+            request.getRequestURI(),
+            fieldErrors
+        );
+
         return ResponseEntity
             .status(status)
             .body(response);
