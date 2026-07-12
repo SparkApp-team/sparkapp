@@ -45,10 +45,10 @@ class UserManager {
         }
     }
 
-    func getUser(userId: String) async throws -> UserDataModel {
-        logManager?.trackEvent(event: Event.getUserStart(userId: userId))
+    func getUser(id: Int) async throws -> UserDataModel {
+        logManager?.trackEvent(event: Event.getUserStart(id: id))
         do {
-            let user = try await service.getUser(userId: userId)
+            let user = try await service.getUser(id: id)
             logManager?.trackEvent(event: Event.getUserSuccess(user: user))
             return user
         } catch {
@@ -65,7 +65,7 @@ class UserManager {
             return false
         }
         do {
-            let user = try await getUser(userId: userId)
+            let user = try await getUser(id: userId)
             currentUser = user
             logManager?.trackEvent(event: Event.restoreSessionSuccess(user: user))
             return true
@@ -96,7 +96,7 @@ extension UserManager {
         case registerUserStart
         case registerUserSuccess(user: UserDataModel)
         case registerUserFail(error: Error)
-        case getUserStart(userId: String)
+        case getUserStart(id: Int)
         case getUserSuccess(user: UserDataModel)
         case getUserFail(error: Error)
         case restoreSessionStart
@@ -128,6 +128,8 @@ extension UserManager {
 
         var parameters: [String: Any]? {
             switch self {
+            case .getUserStart(id: let id):
+                ["user_id": id]
             case .loginSuccess(let user), .registerUserSuccess(let user),
                  .getUserSuccess(let user), .restoreSessionSuccess(let user),
                  .persistSession(let user):
@@ -158,8 +160,8 @@ extension UserDefaults {
 
     /// The signed-in user's id, persisted across launches and used like a
     /// session token (sent as the `X-USER-ID` header).
-    static var currentUserId: String? {
-        get { standard.string(forKey: Keys.currentUserId) }
+    static var currentUserId: Int? {
+        get { standard.integer(forKey: Keys.currentUserId) }
         set { standard.set(newValue, forKey: Keys.currentUserId) }
     }
 }

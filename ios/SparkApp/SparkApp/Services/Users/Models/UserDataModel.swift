@@ -6,16 +6,16 @@
 //
 
 struct UserDataModel: Hashable, Codable {
-    let id: String
+    let id: Int
     let email: String
 
-    init(id: String, email: String) {
+    init(id: Int, email: String) {
         self.id = id
         self.email = email
     }
 
     enum CodingKeys: String, CodingKey {
-        case id = "userId"
+        case id
         case email
     }
 
@@ -30,10 +30,10 @@ struct UserDataModel: Hashable, Codable {
 
     static var mocks: [UserDataModel] {
         [
-            UserDataModel(id: "1", email: "user1@example.com"),
-            UserDataModel(id: "2", email: "user2@example.com"),
-            UserDataModel(id: "3", email: "user3@example.com"),
-            UserDataModel(id: "0", email: "example@gmail.com"),
+            UserDataModel(id: 1, email: "user1@example.com"),
+            UserDataModel(id: 2, email: "user2@example.com"),
+            UserDataModel(id: 3, email: "user3@example.com"),
+            UserDataModel(id: 0, email: "example@gmail.com"),
         ]
     }
 }

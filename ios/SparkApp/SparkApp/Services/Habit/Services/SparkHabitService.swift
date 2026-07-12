@@ -11,7 +11,7 @@ struct SparkHabitService: HabitService {
     private let client = APIClient()
     
     func createHabit(name: String, frequency: String, userId: Int) async throws -> HabitDataModel {
-        let header = ["X-USER-ID": userId.description]
+        let header = ["X-USER-ID": String(userId)]
         let body = try JSONEncoder().encode(HabitCreateRequestBody(name: name, frequency: frequency))
 
         let endpoint = Endpoint(
@@ -52,7 +52,7 @@ struct SparkHabitService: HabitService {
     }
     
     func getHabitsForUser(userId: Int) async throws -> [HabitDataModel] {
-        let header = ["X-USER-ID": userId.description]
+        let header = ["X-USER-ID": String(userId)]
 
         let endpoint = Endpoint(
             path: "habits",

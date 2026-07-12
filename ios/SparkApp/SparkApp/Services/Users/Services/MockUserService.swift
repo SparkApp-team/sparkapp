@@ -20,7 +20,7 @@ struct MockUserService: UserService, MockService {
 
     func registerUser(email: String, password: String, passwordConfirmation: String) async throws -> UserDataModel {
         try await executionBehaviour()
-        let newUser = UserDataModel(id: UUID().uuidString, email: email)
+        let newUser = UserDataModel(id: UUID().hashValue, email: email)
         return newUser
     }
 
@@ -29,7 +29,7 @@ struct MockUserService: UserService, MockService {
         return user
     }
 
-    func getUser(userId: String) async throws -> UserDataModel {
+    func getUser(id: Int) async throws -> UserDataModel {
         try await executionBehaviour()
         return user
     }

@@ -30,7 +30,7 @@ class HabitsListViewModel {
         isLoading = true
         defer { isLoading = false }
         do {
-            guard let strUserId = userManager.currentUser?.id, let userId = Int(strUserId) else {
+            guard let userId = userManager.currentUser?.id else {
                 logManager.trackEvent(
                     eventName: "HabitsView_LoadHabits_NoUser",
                     type: .warning

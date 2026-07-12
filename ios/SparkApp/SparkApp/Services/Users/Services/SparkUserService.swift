@@ -34,8 +34,8 @@ struct SparkUserService: UserService {
         return try await client.send(endpoint)
     }
 
-    func getUser(userId: String) async throws -> UserDataModel {
-        let header = ["X-USER-ID": userId]
+    func getUser(id: Int) async throws -> UserDataModel {
+        let header = ["X-USER-ID": String(id)]
 
         let endpoint = Endpoint(
             path: "users/me",
