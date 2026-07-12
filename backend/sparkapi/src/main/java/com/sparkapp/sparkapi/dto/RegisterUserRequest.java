@@ -14,6 +14,11 @@ public record RegisterUserRequest(
         min = 8,
         message = "Password must be at least 8 characters"
     )
-    String password) {
+    String password,
+
+    @NotBlank(message = "Password confirmation is required")
+    String passwordConfirmation
+
+) {
 
 }
