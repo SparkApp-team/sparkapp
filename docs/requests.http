@@ -1,6 +1,8 @@
 @baseUrl = http://localhost:8081
 @userId = 1
 @otherUserId = 2
+@habitId = 1
+@missingHabitId = 999999
 
 ### Health check
 GET {{baseUrl}}/health
@@ -176,7 +178,7 @@ GET {{baseUrl}}/users/me
 X-USER-ID: not-a-number
 
 ### Create habit for first user
-# Expected: 200 OK
+# Expected: 201 Created
 POST {{baseUrl}}/habits
 Content-Type: application/json
 X-USER-ID: {{userId}}
@@ -187,7 +189,7 @@ X-USER-ID: {{userId}}
 }
 
 ### Create another habit for first user
-# Expected: 200 OK
+# Expected: 201 Created
 POST {{baseUrl}}/habits
 Content-Type: application/json
 X-USER-ID: {{userId}}
@@ -198,7 +200,7 @@ X-USER-ID: {{userId}}
 }
 
 ### Create habit for second user
-# Expected: 200 OK
+# Expected: 201 Created
 POST {{baseUrl}}/habits
 Content-Type: application/json
 X-USER-ID: {{otherUserId}}
@@ -226,3 +228,66 @@ GET {{baseUrl}}/habits
 # Expected: 500 Internal Server Error unless fake auth error handling is added.
 GET {{baseUrl}}/habits
 X-USER-ID: not-a-number
+
+### Get habit by ID
+# Expected: 200 OK when habit 1 belongs to user 1.
+GET {{baseUrl}}/habits/{{habitId}}
+X-USER-ID: {{userId}}
+
+### Get another user's habit
+# Expected: 404 Not Found because ownership is checked.
+GET {{baseUrl}}/habits/{{habitId}}
+X-USER-ID: {{otherUserId}}
+
+### Get missing habit
+# Expected: 404 Not Found.
+GET {{baseUrl}}/habits/{{missingHabitId}}
+X-USER-ID: {{userId}}
+
+### Update habit
+# Expected: 200 OK when habit 1 belongs to user 1.
+PUT {{baseUrl}}/habits/{{habitId}}
+Content-Type: application/json
+X-USER-ID: {{userId}}
+
+{
+  "name": "Drink more water",
+  "frequency": "twice daily"
+}
+
+### Update another user's habit
+# Expected: 404 Not Found because ownership is checked.
+PUT {{baseUrl}}/habits/{{habitId}}
+Content-Type: application/json
+X-USER-ID: {{otherUserId}}
+
+{
+  "name": "Changed by another user",
+  "frequency": "weekly"
+}
+
+### Update habit with invalid request
+# Expected: 400 Bad Request because name and frequency are required.
+PUT {{baseUrl}}/habits/{{habitId}}
+Content-Type: application/json
+X-USER-ID: {{userId}}
+
+{
+  "name": "",
+  "frequency": ""
+}
+
+### Delete another user's habit
+# Expected: 404 Not Found because ownership is checked.
+DELETE {{baseUrl}}/habits/{{habitId}}
+X-USER-ID: {{otherUserId}}
+
+### Delete habit
+# Expected: 204 No Content when habit 1 belongs to user 1.
+DELETE {{baseUrl}}/habits/{{habitId}}
+X-USER-ID: {{userId}}
+
+### Get deleted habit
+# Expected: 404 Not Found after the delete request above.
+GET {{baseUrl}}/habits/{{habitId}}
+X-USER-ID: {{userId}}

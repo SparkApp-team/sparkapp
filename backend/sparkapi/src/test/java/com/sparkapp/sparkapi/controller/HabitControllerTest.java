@@ -2,7 +2,9 @@ package com.sparkapp.sparkapi.controller;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -57,6 +59,25 @@ class HabitControllerTest {
     }
 
     @Test
+    void createHabitReturnsBadRequestWhenNameAndFrequencyAreBlank() throws Exception {
+        mockMvc.perform(post("/habits")
+                .header("X-USER-ID", "7")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                    {
+                      "name": "",
+                      "frequency": ""
+                    }
+                    """))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.message").value("Validation failed"))
+            .andExpect(jsonPath("$.fieldErrors.name").exists())
+            .andExpect(jsonPath("$.fieldErrors.frequency").exists());
+
+        verifyNoInteractions(habitService);
+    }
+
+    @Test
     void getHabitListReturnsCurrentUsersHabits() throws Exception {
         when(habitService.getHabitList("7")).thenReturn(List.of(
             new HabitResponse(1L, 7L, "Read", "daily"),
@@ -98,6 +119,32 @@ class HabitControllerTest {
     }
 
     @Test
+    void habitEndpointsReturnBadRequestWhenHabitIdIsNotPositive() throws Exception {
+        for (long habitId : new long[] {0L, -1L}) {
+            mockMvc.perform(get("/habits/{habitId}", habitId)
+                    .header("X-USER-ID", "7"))
+                .andExpect(status().isBadRequest());
+
+            mockMvc.perform(put("/habits/{habitId}", habitId)
+                    .header("X-USER-ID", "7")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("""
+                        {
+                          "name": "Exercise",
+                          "frequency": "weekly"
+                        }
+                        """))
+                .andExpect(status().isBadRequest());
+
+            mockMvc.perform(delete("/habits/{habitId}", habitId)
+                    .header("X-USER-ID", "7"))
+                .andExpect(status().isBadRequest());
+        }
+
+        verifyNoInteractions(habitService);
+    }
+
+    @Test
     void updateHabitReturnsUpdatedHabit() throws Exception {
         when(habitService.updateHabit(eq("7"), eq(1L), any()))
             .thenReturn(new HabitResponse(1L, 7L, "Exercise", "weekly"));
@@ -121,10 +168,59 @@ class HabitControllerTest {
     }
 
     @Test
+    void updateHabitReturnsBadRequestWhenFieldsAreBlank() throws Exception {
+        mockMvc.perform(put("/habits/1")
+                .header("X-USER-ID", "7")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                    {
+                      "name": "",
+                      "frequency": ""
+                    }
+                    """))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.message").value("Validation failed"))
+            .andExpect(jsonPath("$.fieldErrors.name").exists())
+            .andExpect(jsonPath("$.fieldErrors.frequency").exists());
+
+        verifyNoInteractions(habitService);
+    }
+
+    @Test
+    void updateHabitReturnsNotFoundWhenHabitIsUnavailableToUser() throws Exception {
+        when(habitService.updateHabit(eq("7"), eq(1L), any()))
+            .thenThrow(new HabitNotFoundException());
+
+        mockMvc.perform(put("/habits/1")
+                .header("X-USER-ID", "7")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                    {
+                      "name": "Exercise",
+                      "frequency": "weekly"
+                    }
+                    """))
+            .andExpect(status().isNotFound())
+            .andExpect(jsonPath("$.message").value("Habit not found"))
+            .andExpect(jsonPath("$.path").value("/habits/1"));
+    }
+
+    @Test
     void deleteHabitReturnsNoContent() throws Exception {
         mockMvc.perform(delete("/habits/1").header("X-USER-ID", "7"))
             .andExpect(status().isNoContent());
 
         verify(habitService).deleteHabit("7", 1L);
+    }
+
+    @Test
+    void deleteHabitReturnsNotFoundWhenHabitIsUnavailableToUser() throws Exception {
+        doThrow(new HabitNotFoundException())
+            .when(habitService).deleteHabit("7", 1L);
+
+        mockMvc.perform(delete("/habits/1").header("X-USER-ID", "7"))
+            .andExpect(status().isNotFound())
+            .andExpect(jsonPath("$.message").value("Habit not found"))
+            .andExpect(jsonPath("$.path").value("/habits/1"));
     }
 }
