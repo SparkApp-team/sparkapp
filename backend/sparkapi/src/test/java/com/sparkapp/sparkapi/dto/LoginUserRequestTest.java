@@ -29,4 +29,34 @@ public class LoginUserRequestTest {
 
         assertTrue(violations.isEmpty());
     }
+
+    @Test
+    void blankEmailProducesRequiredViolation() {
+        var request = new LoginUserRequest(
+            " ",
+            "password"
+        );
+
+        var violations = validator.validate(request);
+
+        assertTrue(violations.stream().anyMatch(violation ->
+            violation.getPropertyPath().toString().equals("email")
+            && violation.getMessage().equals("Email is required")
+        ));
+    }
+
+    @Test
+    void blankPasswordProducesRequiredViolation() {
+        var request = new LoginUserRequest(
+            "test@example.com",
+            " "
+        );
+
+        var violations = validator.validate(request);
+
+        assertTrue(violations.stream().anyMatch(violation ->
+            violation.getPropertyPath().toString().equals("password")
+            && violation.getMessage().equals("Password is required")
+        ));
+    }
 }

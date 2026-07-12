@@ -2,13 +2,14 @@ package com.sparkapp.sparkapi.service;
 
 import java.util.Optional;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import com.sparkapp.sparkapi.dto.LoginUserRequest;
 import com.sparkapp.sparkapi.dto.RegisterUserRequest;
 import com.sparkapp.sparkapi.dto.UserResponse;
+import com.sparkapp.sparkapi.exception.EmailAlreadyRegisteredException;
+import com.sparkapp.sparkapi.exception.InvalidCredentialsException;
+import com.sparkapp.sparkapi.exception.PasswordDoNotMatchException;
 import com.sparkapp.sparkapi.repository.UserRepository;
 import com.sparkapp.sparkapi.model.User;
 
@@ -25,15 +26,12 @@ public class AuthService {
 
     public UserResponse registerUser(RegisterUserRequest request) {
         if (!request.password().equals(request.passwordConfirmation())) {
-            throw new ResponseStatusException(
-                HttpStatus.BAD_REQUEST,
-                "Passwords do not match"
-            );
+            throw new PasswordDoNotMatchException();
         }
 
         Optional<User> userOptional = userRepository.findByEmail(request.email());
         if (!userOptional.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Email is already registered");
+            throw new EmailAlreadyRegisteredException();
         }
 
         User user = new User();
@@ -53,14 +51,14 @@ public class AuthService {
         Optional<User> userOptional = userRepository.findByEmail(request.email());
 
         if (userOptional.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid email or password");
+            throw new InvalidCredentialsException();
         }
 
         User user = userOptional.get();
         String passwordHash = fakeHashService.hashPassword(request.password());
 
         if (!user.getPasswordHash().equals(passwordHash)) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid email or password");
+            throw new InvalidCredentialsException();
         }
 
         return new UserResponse(

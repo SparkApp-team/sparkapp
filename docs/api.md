@@ -12,6 +12,34 @@ http://localhost:8081
 
 The port is currently configured in `backend/sparkapi/src/main/resources/application.properties`.
 
+## Error response format
+
+Handled API errors use this JSON envelope:
+
+```json
+{
+  "timestamp": "2026-07-12T10:15:30.123Z",
+  "status": 400,
+  "error": "Bad Request",
+  "message": "Validation failed",
+  "path": "/auth/register",
+  "fieldErrors": {
+    "email": "Email must be valid"
+  }
+}
+```
+
+Error response fields:
+
+- `timestamp` (`string`): UTC time at which the error response was created, in ISO-8601 format.
+- `status` (`number`): HTTP status code.
+- `error` (`string`): HTTP status reason phrase.
+- `message` (`string`): Summary of the error.
+- `path` (`string`): Request path that produced the error.
+- `fieldErrors` (`object`): Field name to validation-message mapping. This is empty when the error is not tied to a request field.
+
+For request-validation errors, `message` is `"Validation failed"` and `fieldErrors` contains the first error for each invalid field. For example, mismatched registration passwords return `400 Bad Request` with `fieldErrors.passwordConfirmation` set to `"Passwords do not match"`.
+
 ## Endpoints
 
 ### `GET /health`
@@ -85,6 +113,8 @@ Error responses:
 - `400 Bad Request`: A required field is blank, the email is invalid, the password is shorter than 8 characters, or the passwords do not match.
 - `409 Conflict`: The email address is already registered.
 
+For a password mismatch, the error is associated with the `passwordConfirmation` field. For a duplicate email, it is associated with the `email` field.
+
 
 ### `POST /auth/login`
 
@@ -128,6 +158,8 @@ Error responses:
 - `400 Bad Request`: Email or password is blank.
 - `401 Unauthorized`: The email is unknown or the password is incorrect.
 
+For invalid credentials, `message` is `"Invalid email or password"` and `fieldErrors` is empty.
+
 
 ### `GET /users/me`
 
@@ -162,6 +194,10 @@ Response fields:
 
 - `userId` (`string`): Current user ID from the fake-auth header.
 - `email` (`string`): Current user email.
+
+Error responses:
+
+- `404 Not Found`: No user exists for the current fake-auth user ID. The response message is `"User not found"` and `fieldErrors` is empty.
 
 
 ### `POST /habits`
