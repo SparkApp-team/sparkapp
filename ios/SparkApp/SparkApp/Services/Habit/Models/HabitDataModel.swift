@@ -10,8 +10,8 @@ import SwiftUI
 struct HabitDataModel: Hashable, Codable {
     let id: Int
     let userId: Int
-    let name: String
-    let frequency: String
+    var name: String
+    var frequency: String
 
     init(
         id: Int,

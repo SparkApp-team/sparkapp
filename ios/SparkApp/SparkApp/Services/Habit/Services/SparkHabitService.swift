@@ -7,11 +7,11 @@
 
 import Foundation
 
-struct SparkHabitService: HabitService {
+struct SparkHabitService: HabitService {    
     private let client = APIClient()
     
-    func createHabit(name: String, frequency: String, userId: String) async throws -> HabitDataModel {
-        let header = ["X-USER-ID": userId]
+    func createHabit(name: String, frequency: String, userId: Int) async throws -> HabitDataModel {
+        let header = ["X-USER-ID": userId.description]
         let body = try JSONEncoder().encode(HabitCreateRequestBody(name: name, frequency: frequency))
 
         let endpoint = Endpoint(
@@ -24,8 +24,35 @@ struct SparkHabitService: HabitService {
         return try await client.send(endpoint)
     }
     
-    func getHabitsForUser(userId: String) async throws -> [HabitDataModel] {
-        let header = ["X-USER-ID": userId]
+    // MOCK
+    func deleteHabbit(id: Int) async throws {
+        throw NSError(
+            domain: "Not ready",
+            code: 0,
+            userInfo: [NSLocalizedDescriptionKey: "Enpoint is not ready."]
+        )
+    }
+    
+    // MOCK
+    func updateHabit(id: Int, name: String, frequency: String) async throws -> HabitDataModel {
+        throw NSError(
+            domain: "Not ready",
+            code: 0,
+            userInfo: [NSLocalizedDescriptionKey: "Enpoint is not ready."]
+        )
+    }
+    
+    // MOCK
+    func getHabit(id: Int, userId: Int) async throws -> HabitDataModel {
+        throw NSError(
+            domain: "Not ready",
+            code: 0,
+            userInfo: [NSLocalizedDescriptionKey: "Enpoint is not ready."]
+        )
+    }
+    
+    func getHabitsForUser(userId: Int) async throws -> [HabitDataModel] {
+        let header = ["X-USER-ID": userId.description]
 
         let endpoint = Endpoint(
             path: "habits",

@@ -57,14 +57,31 @@ final class SpyUserService: UserService {
 @MainActor
 final class SpyHabitService: HabitService {
     private(set) var createCallCount = 0
+    private(set) var deleteCallCount = 0
+    private(set) var updateCallCount = 0
+    private(set) var getHabitCallCount = 0
     private(set) var getHabitsCallCount = 0
 
-    func createHabit(name: String, frequency: String, userId: String) async throws -> HabitDataModel {
+    func createHabit(name: String, frequency: String, userId: Int) async throws -> HabitDataModel {
         createCallCount += 1
         return .mock
     }
 
-    func getHabitsForUser(userId: String) async throws -> [HabitDataModel] {
+    func deleteHabbit(id: Int) async throws {
+        deleteCallCount += 1
+    }
+
+    func updateHabit(id: Int, name: String, frequency: String) async throws -> HabitDataModel {
+        updateCallCount += 1
+        return .mock
+    }
+
+    func getHabit(id: Int, userId: Int) async throws -> HabitDataModel {
+        getHabitCallCount += 1
+        return .mock
+    }
+
+    func getHabitsForUser(userId: Int) async throws -> [HabitDataModel] {
         getHabitsCallCount += 1
         return HabitDataModel.mocks
     }
