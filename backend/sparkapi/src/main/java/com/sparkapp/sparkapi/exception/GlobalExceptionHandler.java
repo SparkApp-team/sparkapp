@@ -71,7 +71,7 @@ public class GlobalExceptionHandler {
             .body(response);
     }
 
-        @ExceptionHandler(EmailAlreadyRegisteredException.class)
+    @ExceptionHandler(EmailAlreadyRegisteredException.class)
     public ResponseEntity<ApiErrorResponse> handleEmailAlreadyRegisteredException(
         EmailAlreadyRegisteredException exception,
         HttpServletRequest request
@@ -95,7 +95,7 @@ public class GlobalExceptionHandler {
             .body(response);
     }
 
-        @ExceptionHandler(PasswordDoNotMatchException.class)
+    @ExceptionHandler(PasswordDoNotMatchException.class)
     public ResponseEntity<ApiErrorResponse> handlePasswordDoNotMatchException(
         PasswordDoNotMatchException exception,
         HttpServletRequest request
@@ -119,7 +119,7 @@ public class GlobalExceptionHandler {
             .body(response);
     }
 
-        @ExceptionHandler(UserNotFoundException.class)
+    @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<ApiErrorResponse> handleUserNotFoundException(
         UserNotFoundException exception,
         HttpServletRequest request
@@ -139,6 +139,25 @@ public class GlobalExceptionHandler {
             .status(status)
             .body(response);
     }
+    @ExceptionHandler(HabitNotFoundException.class)
+    public ResponseEntity<ApiErrorResponse> handleHabitNotFoundException(
+        HabitNotFoundException exception,
+        HttpServletRequest request
+    ) {
+        HttpStatus status = HttpStatus.NOT_FOUND;
 
+        ApiErrorResponse response = new ApiErrorResponse(
+            Instant.now(),
+            status.value(),
+            status.getReasonPhrase(),
+            exception.getMessage(),
+            request.getRequestURI(),
+            Map.of()
+        );
+        
+        return ResponseEntity
+            .status(status)
+            .body(response);
+    }
 
 }

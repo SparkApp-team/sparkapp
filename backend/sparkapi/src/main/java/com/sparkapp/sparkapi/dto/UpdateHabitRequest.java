@@ -2,7 +2,7 @@ package com.sparkapp.sparkapi.dto;
 
 import jakarta.validation.constraints.NotBlank;
 
-public record CreateHabitRequest(
+public record UpdateHabitRequest(
     @NotBlank
     String name, 
     
