@@ -192,7 +192,7 @@ Example response:
 
 Response fields:
 
-- `userId` (`string`): Current user ID from the fake-auth header.
+- `id` (`number`): Current user ID from the fake-auth header.
 - `email` (`string`): Current user email.
 
 Error responses:
@@ -230,9 +230,13 @@ Request fields:
 - `name` (`string`): Habit name.
 - `frequency` (`string`): Habit frequency.
 
+Error responses:
+
+- `400 Bad Request`: `name` or `frequency` is blank.
+
 Response:
 
-- Status: `200 OK`
+- Status: `201 Created`
 - Content-Type: `application/json`
 
 Example response:
@@ -252,6 +256,135 @@ Response fields:
 - `userId` (`number`): User ID that owns the habit.
 - `name` (`string`): Habit name.
 - `frequency` (`string`): Habit frequency.
+
+
+### `GET /habits/{habitId}`
+
+Purpose:
+Returns one habit owned by the current fake-auth user. A habit owned by another user is treated as not found.
+
+Request:
+
+- Required header: `X-USER-ID`
+- Path parameter: `habitId` (`number`, positive)
+
+Example request:
+
+```text
+GET /habits/1
+X-USER-ID: 1
+```
+
+Response:
+
+- Status: `200 OK`
+- Content-Type: `application/json`
+
+Example response:
+
+```json
+{
+  "id": 1,
+  "userId": 1,
+  "name": "Drink water",
+  "frequency": "daily"
+}
+```
+
+Error responses:
+
+- `400 Bad Request`: `habitId` is zero or negative. The response message is `"Validation failed"`, with `fieldErrors.habitId` set to `"must be greater than 0"`.
+- `404 Not Found`: The habit does not exist or is not owned by the current user. The response message is `"Habit not found"`.
+
+Example invalid-ID response:
+
+```json
+{
+  "timestamp": "2026-07-12T10:15:30.123Z",
+  "status": 400,
+  "error": "Bad Request",
+  "message": "Validation failed",
+  "path": "/habits/0",
+  "fieldErrors": {
+    "habitId": "must be greater than 0"
+  }
+}
+```
+
+
+### `PUT /habits/{habitId}`
+
+Purpose:
+Replaces the editable fields of a habit owned by the current fake-auth user.
+
+Request:
+
+- Content-Type: `application/json`
+- Required header: `X-USER-ID`
+- Path parameter: `habitId` (`number`, positive)
+
+Example request:
+
+```json
+{
+  "name": "Exercise",
+  "frequency": "weekly"
+}
+```
+
+Request fields:
+
+- `name` (`string`, required): Nonblank replacement habit name.
+- `frequency` (`string`, required): Nonblank replacement habit frequency.
+
+Response:
+
+- Status: `200 OK`
+- Content-Type: `application/json`
+
+Example response:
+
+```json
+{
+  "id": 1,
+  "userId": 1,
+  "name": "Exercise",
+  "frequency": "weekly"
+}
+```
+
+Error responses:
+
+- `400 Bad Request`: `habitId` is zero or negative, or `name` or `frequency` is blank. Invalid IDs produce `fieldErrors.habitId` as shown for `GET /habits/{habitId}`.
+- `404 Not Found`: The habit does not exist or is not owned by the current user. The response message is `"Habit not found"`.
+
+
+### `DELETE /habits/{habitId}`
+
+Purpose:
+Deletes a habit owned by the current fake-auth user.
+
+Request:
+
+- Required header: `X-USER-ID`
+- Path parameter: `habitId` (`number`, positive)
+
+Example request:
+
+```text
+DELETE /habits/1
+X-USER-ID: 1
+```
+
+Response:
+
+- Status: `204 No Content`
+- Body: none
+
+Error responses:
+
+- `400 Bad Request`: `habitId` is zero or negative. Invalid IDs produce `fieldErrors.habitId` as shown for `GET /habits/{habitId}`.
+- `404 Not Found`: The habit does not exist or is not owned by the current user. The response message is `"Habit not found"`.
 
 
 ### `GET /habits`
@@ -296,7 +429,7 @@ Response fields:
 
 ## Notes
 
-- This API is in an early stage and currently exposes health checks, registration, login, current-user lookup, habit creation, and habit listing.
+- This API is in an early stage and currently exposes health checks, registration, login, current-user lookup, and habit CRUD operations.
 - User and habit records are persisted through JPA.
 - Authentication is currently fake: `X-USER-ID` is parsed as the current numeric user ID.
 - Password hashing is currently fake: the fake hash service reverses the submitted password string.

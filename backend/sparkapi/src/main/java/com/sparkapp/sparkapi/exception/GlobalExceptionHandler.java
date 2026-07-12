@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.ConstraintViolationException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -50,6 +51,36 @@ public class GlobalExceptionHandler {
             .body(response);
     }
 
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<ApiErrorResponse> handleConstraintViolationException(
+        ConstraintViolationException exception,
+        HttpServletRequest request
+    ) {
+        Map<String, String> fieldErrors = new LinkedHashMap<>();
+
+        exception.getConstraintViolations().forEach(violation -> {
+            String propertyPath = violation.getPropertyPath().toString();
+            int lastDotIndex = propertyPath.lastIndexOf('.');
+            String field = propertyPath.substring(lastDotIndex + 1);
+            fieldErrors.putIfAbsent(field, violation.getMessage());
+        });
+
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+
+        ApiErrorResponse response = new ApiErrorResponse(
+            Instant.now(),
+            status.value(),
+            status.getReasonPhrase(),
+            "Validation failed",
+            request.getRequestURI(),
+            fieldErrors
+        );
+
+        return ResponseEntity
+            .status(status)
+            .body(response);
+    }
+
     @ExceptionHandler(InvalidCredentialsException.class)
     public ResponseEntity<ApiErrorResponse> handleInvalidCredentialsException(
         InvalidCredentialsException exception,
@@ -71,7 +102,7 @@ public class GlobalExceptionHandler {
             .body(response);
     }
 
-        @ExceptionHandler(EmailAlreadyRegisteredException.class)
+    @ExceptionHandler(EmailAlreadyRegisteredException.class)
     public ResponseEntity<ApiErrorResponse> handleEmailAlreadyRegisteredException(
         EmailAlreadyRegisteredException exception,
         HttpServletRequest request
@@ -95,7 +126,7 @@ public class GlobalExceptionHandler {
             .body(response);
     }
 
-        @ExceptionHandler(PasswordDoNotMatchException.class)
+    @ExceptionHandler(PasswordDoNotMatchException.class)
     public ResponseEntity<ApiErrorResponse> handlePasswordDoNotMatchException(
         PasswordDoNotMatchException exception,
         HttpServletRequest request
@@ -119,7 +150,7 @@ public class GlobalExceptionHandler {
             .body(response);
     }
 
-        @ExceptionHandler(UserNotFoundException.class)
+    @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<ApiErrorResponse> handleUserNotFoundException(
         UserNotFoundException exception,
         HttpServletRequest request
@@ -139,6 +170,25 @@ public class GlobalExceptionHandler {
             .status(status)
             .body(response);
     }
+    @ExceptionHandler(HabitNotFoundException.class)
+    public ResponseEntity<ApiErrorResponse> handleHabitNotFoundException(
+        HabitNotFoundException exception,
+        HttpServletRequest request
+    ) {
+        HttpStatus status = HttpStatus.NOT_FOUND;
 
+        ApiErrorResponse response = new ApiErrorResponse(
+            Instant.now(),
+            status.value(),
+            status.getReasonPhrase(),
+            exception.getMessage(),
+            request.getRequestURI(),
+            Map.of()
+        );
+        
+        return ResponseEntity
+            .status(status)
+            .body(response);
+    }
 
 }
