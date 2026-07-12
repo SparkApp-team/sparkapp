@@ -24,18 +24,6 @@ public class AuthService {
     }
 
     public UserResponse registerUser(RegisterUserRequest request) {
-        if (request.email() == null || request.email().isBlank()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email is required");
-        }
-
-        if (request.password() == null || request.password().isBlank()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Password is required");
-        }
-
-        if (request.password().length() < 8) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Password must be at least 8 characters");
-        }
-
         Optional<User> userOptional = userRepository.findByEmail(request.email());
         if (!userOptional.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Email is already registered");
@@ -54,13 +42,6 @@ public class AuthService {
 
 
     public UserResponse loginUser(LoginUserRequest request){
-        if (request.email() == null || request.email().isBlank()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email is required");
-        }
-
-        if (request.password() == null || request.password().isBlank()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Password is required");
-        }
 
         Optional<User> userOptional = userRepository.findByEmail(request.email());
 
