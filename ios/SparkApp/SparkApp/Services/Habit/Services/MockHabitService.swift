@@ -27,11 +27,11 @@ class MockHabitService: HabitService, MockService {
     
     func deleteHabbit(id: Int) async throws {
         try await executionBehaviour()
-        guard let _ = habits.first(where: { $0.id == id }) else {
+        guard habits.contains(where: { $0.id == id }) else {
             throw NSError(
                 domain: "Not found",
                 code: 0,
-                userInfo: [NSLocalizedDescriptionKey: "Index: \(String(describing: index)) was not found. "]
+                userInfo: [NSLocalizedDescriptionKey: "Habit with id: \(id) was not found."]
             )
         }
         habits.removeAll(where: { $0.id == id })
@@ -43,10 +43,10 @@ class MockHabitService: HabitService, MockService {
             throw NSError(
                 domain: "Not found",
                 code: 0,
-                userInfo: [NSLocalizedDescriptionKey: "Index: \(String(describing: index)) was not found. "]
+                userInfo: [NSLocalizedDescriptionKey: "Habit with id: \(id) was not found."]
             )
         }
-        
+
         try await executionBehaviour()
         habits[index].name = name
         habits[index].frequency = frequency
@@ -60,6 +60,6 @@ class MockHabitService: HabitService, MockService {
 
     func getHabitsForUser(userId: Int) async throws -> [HabitDataModel] {
         try await executionBehaviour()
-        return habits.filter({ $0.id == userId })
+        return habits.filter({ $0.userId == userId })
     }
 }
