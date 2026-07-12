@@ -24,6 +24,13 @@ public class AuthService {
     }
 
     public UserResponse registerUser(RegisterUserRequest request) {
+        if (!request.password().equals(request.passwordConfirmation())) {
+            throw new ResponseStatusException(
+                HttpStatus.BAD_REQUEST,
+                "Passwords do not match"
+            );
+        }
+
         Optional<User> userOptional = userRepository.findByEmail(request.email());
         if (!userOptional.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Email is already registered");

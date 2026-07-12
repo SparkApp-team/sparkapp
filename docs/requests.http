@@ -13,7 +13,8 @@ Content-Type: application/json
 
 {
   "email": "roman@example.com",
-  "password": "password"
+  "password": "password",
+  "passwordConfirmation": "password"
 }
 
 ### Register second user
@@ -24,7 +25,8 @@ Content-Type: application/json
 
 {
   "email": "second@example.com",
-  "password": "password123"
+  "password": "password123",
+  "passwordConfirmation": "password123"
 }
 
 ### Register duplicate email
@@ -34,7 +36,8 @@ Content-Type: application/json
 
 {
   "email": "roman@example.com",
-  "password": "password"
+  "password": "password",
+  "passwordConfirmation": "password"
 }
 
 ### Register missing email
@@ -44,7 +47,8 @@ Content-Type: application/json
 
 {
   "email": "",
-  "password": "password"
+  "password": "password",
+  "passwordConfirmation": "password"
 }
 
 ### Register missing password
@@ -54,7 +58,8 @@ Content-Type: application/json
 
 {
   "email": "missing-password@example.com",
-  "password": ""
+  "password": "",
+  "passwordConfirmation": ""
 }
 
 ### Register short password
@@ -64,7 +69,30 @@ Content-Type: application/json
 
 {
   "email": "short-password@example.com",
-  "password": "short"
+  "password": "short",
+  "passwordConfirmation": "short"
+}
+
+### Register missing password confirmation
+# Expected: 400 Bad Request
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "email": "missing-confirmation@example.com",
+  "password": "password",
+  "passwordConfirmation": ""
+}
+
+### Register mismatched passwords
+# Expected: 400 Bad Request
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "email": "mismatch@example.com",
+  "password": "password",
+  "passwordConfirmation": "different-password"
 }
 
 ### Login first user

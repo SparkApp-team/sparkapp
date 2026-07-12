@@ -22,6 +22,7 @@ public class RegisterUserRequestTest {
     void validRequestHasNoViolations() {
         var request = new RegisterUserRequest(
             "test@example.com",
+            "password",
             "password"
         );
 
