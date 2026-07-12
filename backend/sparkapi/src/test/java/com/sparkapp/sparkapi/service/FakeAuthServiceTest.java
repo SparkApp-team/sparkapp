@@ -15,6 +15,6 @@ class FakeAuthServiceTest {
 
     @Test
     void getCurrentUserTokenConvertsUserIdToString() {
-        assertEquals("42", fakeAuthService.getCurrentUserToken(42L));
+        assertEquals(42L, fakeAuthService.getCurrentUserToken(42L));
     }
 }

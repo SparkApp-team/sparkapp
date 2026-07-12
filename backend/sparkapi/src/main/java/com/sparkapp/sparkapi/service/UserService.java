@@ -29,7 +29,7 @@ public class UserService {
             throw new UserNotFoundException();
         }
         User user = userOptional.get();
-        return new UserResponse(user.getId().toString(), user.getEmail());
+        return new UserResponse(user.getId(), user.getEmail());
 
     }
 }

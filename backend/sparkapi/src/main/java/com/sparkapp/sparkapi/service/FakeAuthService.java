@@ -7,7 +7,7 @@ public class FakeAuthService {
     public Long getCurrentUserId(String userIdHeader) {
         return Long.valueOf(userIdHeader);
     }
-    public String getCurrentUserToken(Long userId) {
-        return userId.toString();
+    public Long getCurrentUserToken(Long userId) {
+        return userId;
     }
 }

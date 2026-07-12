@@ -93,7 +93,7 @@ class AuthServiceTest {
             .thenReturn("hashed-password");
 
         when(fakeAuthService.getCurrentUserToken(1L))
-            .thenReturn("1");
+            .thenReturn(1L);
 
         when(userRepository.save(any(User.class))).thenAnswer(invocation -> {
             User user = invocation.getArgument(0);
@@ -103,7 +103,7 @@ class AuthServiceTest {
 
         var response = authService.registerUser(request);
 
-        assertEquals("1", response.userId());
+        assertEquals(1L, response.id());
         assertEquals("test@example.com", response.email());
 
         ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
@@ -151,11 +151,11 @@ class AuthServiceTest {
 
         when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(user));
         when(fakeHashService.hashPassword("password123")).thenReturn("hashed-password");
-        when(fakeAuthService.getCurrentUserToken(1L)).thenReturn("1");
+        when(fakeAuthService.getCurrentUserToken(1L)).thenReturn(1L);
 
         var response = authService.loginUser(request);
 
-        assertEquals("1", response.userId());
+        assertEquals(1L, response.id());
         assertEquals("test@example.com", response.email());
     }
 }
