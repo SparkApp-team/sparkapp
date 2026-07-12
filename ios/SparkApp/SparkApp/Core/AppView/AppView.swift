@@ -27,6 +27,11 @@ struct AppView: View {
     }
 }
 
+#Preview("Main") {
+    return AppView(viewModel: AppViewModel(container: DevPreview.shared.container))
+        .previewEnvironment()
+}
+
 #Preview("Launch") {
     let container = DevPreview.shared.container
     container.register(AppState.self, service: AppState(option: .launch))
