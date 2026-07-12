@@ -27,11 +27,11 @@ class UserControllerTest {
     @Test
     void getCurrentUserReturnsUser() throws Exception {
         when(userService.getCurrentUser("1"))
-            .thenReturn(new UserResponse("1", "test@example.com"));
+            .thenReturn(new UserResponse(1L, "test@example.com"));
 
         mockMvc.perform(get("/users/me").header("X-USER-ID", "1"))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.userId").value("1"))
+            .andExpect(jsonPath("$.id").value(1))
             .andExpect(jsonPath("$.email").value("test@example.com"));
     }
 

@@ -44,7 +44,7 @@ class UserServiceTest {
 
         var response = userService.getCurrentUser("4");
 
-        assertEquals("4", response.userId());
+        assertEquals(4L, response.id());
         assertEquals("user@example.com", response.email());
         verify(userRepository).findById(4L);
     }

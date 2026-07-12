@@ -98,14 +98,14 @@ Example response:
 
 ```json
 {
-  "userId": "1",
+  "id": 1,
   "email": "your@email.com"
 }
 ```
 
 Response fields:
 
-- `userId` (`string`): Generated user ID. Store this value on the client and send it as `X-USER-ID` for fake-auth endpoints.
+- `id` (`string`): Generated user ID. Store this value on the client and send it as `X-USER-ID` for fake-auth endpoints.
 - `email` (`string`): User email.
 
 Error responses:
@@ -148,7 +148,7 @@ Example response:
 
 ```json
 {
-  "userId": "1",
+  "id": 1,
   "email": "your@email.com"
 }
 ```
@@ -185,7 +185,7 @@ Example response:
 
 ```json
 {
-  "userId": "1",
+  "id" : 1,
   "email": "your@email.com"
 }
 ```

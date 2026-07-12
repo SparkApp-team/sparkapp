@@ -30,7 +30,7 @@ class AuthControllerTest {
     @Test
     void registerReturnsUserResponse() throws Exception {
         when(authService.registerUser(any()))
-            .thenReturn(new UserResponse("1", "test@example.com"));
+            .thenReturn(new UserResponse(1L, "test@example.com"));
 
         mockMvc.perform(post("/auth/register")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -42,7 +42,7 @@ class AuthControllerTest {
                     }
                     """))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.userId").value("1"))
+            .andExpect(jsonPath("$.id").value(1L))
             .andExpect(jsonPath("$.email").value("test@example.com"));
 
         verify(authService).registerUser(any());
@@ -51,7 +51,7 @@ class AuthControllerTest {
     @Test
     void loginReturnsUserResponse() throws Exception {
         when(authService.loginUser(any()))
-            .thenReturn(new UserResponse("1", "test@example.com"));
+            .thenReturn(new UserResponse(1L, "test@example.com"));
 
         mockMvc.perform(post("/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -62,7 +62,7 @@ class AuthControllerTest {
                     }
                     """))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.userId").value("1"))
+            .andExpect(jsonPath("$.id").value(1L))
             .andExpect(jsonPath("$.email").value("test@example.com"));
 
         verify(authService).loginUser(any());
