@@ -18,6 +18,7 @@ import Foundation
 @testable import SparkApp
 
 @Suite("MockHabitService CRUD")
+@MainActor
 struct MockHabitServiceTests {
 
     // MARK: - Create
