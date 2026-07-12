@@ -10,8 +10,8 @@ import Foundation
 struct SparkUserService: UserService {
     private let client = APIClient()
 
-    func registerUser(email: String, password: String) async throws -> UserDataModel {
-        let body = try JSONEncoder().encode(AuthUserRequestBody(email: email, password: password))
+    func registerUser(email: String, password: String, passwordConfirmation: String) async throws -> UserDataModel {
+        let body = try JSONEncoder().encode(RegisterUserRequestBody(email: email, password: password, passwordConfirmation: passwordConfirmation))
 
         let endpoint = Endpoint(
             path: "auth/register",
@@ -23,7 +23,7 @@ struct SparkUserService: UserService {
     }
 
     func login(email: String, password: String) async throws -> UserDataModel {
-        let body = try JSONEncoder().encode(AuthUserRequestBody(email: email, password: password))
+        let body = try JSONEncoder().encode(LoginUserRequestBody(email: email, password: password))
 
         let endpoint = Endpoint(
             path: "auth/login",

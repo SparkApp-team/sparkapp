@@ -34,16 +34,18 @@ class RegisterViewModel {
                 
                 //Password & Confirm password validation
                 let validatedPassword = try validatePassword(password)
-                let confirmPassword = try validatePassword(confirmPassword)
+                let validatedConfirmPassword = try validatePassword(confirmPassword)
                 
                 //Password mismatch
-                if validatedPassword != confirmPassword {
+                if validatedPassword != validatedConfirmPassword {
                     errorMessage = "Passwords don't match."
                     return
                 }
                 
                 errorMessage = nil
-                _ = try await userManager.registerUser(email: validatedEmail, password: validatedPassword)
+                _ = try await userManager.registerUser(email: validatedEmail,
+                                                       password: validatedPassword,
+                                                       passwordConfirmation: validatedConfirmPassword)
                 appState.updateState(option: .content)
             } catch {
                 errorMessage = error.localizedDescription

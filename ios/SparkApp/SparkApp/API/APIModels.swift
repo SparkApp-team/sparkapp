@@ -38,9 +38,10 @@ enum APIError: Error, LocalizedError {
 }
 
 struct APIErrorResponse: Decodable {
+    let timestamp: String
     let status: Int
     let error: String
     let message: String
     let path: String
-    // `timestamp` omitted — decoding ignores keys you don't declare
+    let fieldErrors: [String: String]
 }

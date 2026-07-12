@@ -32,10 +32,10 @@ class UserManager {
         }
     }
 
-    func registerUser(email: String, password: String) async throws -> UserDataModel {
+    func registerUser(email: String, password: String, passwordConfirmation: String) async throws -> UserDataModel {
         logManager?.trackEvent(event: Event.registerUserStart)
         do {
-            let user = try await service.registerUser(email: email, password: password)
+            let user = try await service.registerUser(email: email, password: password, passwordConfirmation: passwordConfirmation)
             persistSession(user)
             logManager?.trackEvent(event: Event.registerUserSuccess(user: user))
             return user

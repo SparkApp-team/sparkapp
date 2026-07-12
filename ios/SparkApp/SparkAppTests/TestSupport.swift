@@ -38,7 +38,7 @@ final class SpyUserService: UserService {
     private(set) var getUserCallCount = 0
     var user: UserDataModel = .mock
 
-    func registerUser(email: String, password: String) async throws -> UserDataModel {
+    func registerUser(email: String, password: String, passwordConfirmation: String) async throws -> UserDataModel {
         registerCallCount += 1
         return UserDataModel(id: "spy", email: email)
     }
