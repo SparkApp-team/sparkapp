@@ -30,7 +30,7 @@ class AddHabitViewModel {
     }
 
     func save(onSuccess: @escaping () -> Void) {
-        guard let strUserId = userManager.currentUser?.id, let userId = Int(strUserId) else {
+        guard let userId = userManager.currentUser?.id else {
             errorMessage = "No signed-in user."
             return
         }

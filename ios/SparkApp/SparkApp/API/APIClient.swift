@@ -28,7 +28,7 @@ struct APIClient {
             request.setValue("true", forHTTPHeaderField: "ngrok-skip-browser-warning")
 
             for (key, value) in endpoint.headers {
-                request.setValue(value, forHTTPHeaderField: key)
+                request.setValue(String(value), forHTTPHeaderField: key)
             }
 
             if endpoint.body != nil  {

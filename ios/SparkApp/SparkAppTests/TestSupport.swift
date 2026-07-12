@@ -40,7 +40,7 @@ final class SpyUserService: UserService {
 
     func registerUser(email: String, password: String, passwordConfirmation: String) async throws -> UserDataModel {
         registerCallCount += 1
-        return UserDataModel(id: "spy", email: email)
+        return UserDataModel(id: 99, email: email)
     }
 
     func login(email: String, password: String) async throws -> UserDataModel {
@@ -48,7 +48,7 @@ final class SpyUserService: UserService {
         return user
     }
 
-    func getUser(userId: String) async throws -> UserDataModel {
+    func getUser(id: Int) async throws -> UserDataModel {
         getUserCallCount += 1
         return user
     }
