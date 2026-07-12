@@ -25,7 +25,7 @@ class MockHabitService: HabitService, MockService {
         return habit
     }
     
-    func deleteHabbit(id: Int) async throws {
+    func deleteHabbit(id: Int, userId: Int) async throws {
         try await executionBehaviour()
         guard habits.contains(where: { $0.id == id }) else {
             throw NSError(
@@ -38,7 +38,7 @@ class MockHabitService: HabitService, MockService {
         return
     }
     
-    func updateHabit(id: Int, name: String, frequency: String) async throws -> HabitDataModel {
+    func updateHabit(id: Int, userId: Int, name: String, frequency: String) async throws -> HabitDataModel {
         guard let index = habits.firstIndex(where: { $0.id == id }) else {
             throw NSError(
                 domain: "Not found",

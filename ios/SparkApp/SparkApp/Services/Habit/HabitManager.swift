@@ -43,21 +43,21 @@ class HabitManager {
         }
     }
     
-    func deleteHabbit(id: Int) async throws {
-        logManager?.trackEvent(event: Event.deleteHabitStart(id: id))
+    func deleteHabbit(id: Int, userId: Int) async throws {
+        logManager?.trackEvent(event: Event.deleteHabitStart(id: id, userId: userId))
         do {
-            try await service.deleteHabbit(id: id)
-            logManager?.trackEvent(event: Event.deleteHabitSuccess(id: id))
+            try await service.deleteHabbit(id: id, userId: userId)
+            logManager?.trackEvent(event: Event.deleteHabitSuccess(id: id, userId: userId))
         } catch {
             logManager?.trackEvent(event: Event.deleteHabitFail(error: error))
             throw error
         }
     }
     
-    func updateHabit(id: Int, name: String, frequency: String) async throws -> HabitDataModel {
+    func updateHabit(id: Int, userId: Int, name: String, frequency: String) async throws -> HabitDataModel {
         logManager?.trackEvent(event: Event.updateHabitStart(id: id))
         do {
-            let habit = try await service.updateHabit(id: id, name: name, frequency: frequency)
+            let habit = try await service.updateHabit(id: id, userId: userId, name: name, frequency: frequency)
             logManager?.trackEvent(event: Event.updateHabitSuccess(habbit: habit))
             return habit
         } catch {
@@ -90,8 +90,8 @@ extension HabitManager {
         case createHabitStart
         case createHabitSuccess(habit: HabitDataModel)
         case createHabitFail(error: Error)
-        case deleteHabitStart(id: Int)
-        case deleteHabitSuccess(id: Int)
+        case deleteHabitStart(id: Int, userId: Int)
+        case deleteHabitSuccess(id: Int, userId: Int)
         case deleteHabitFail(error: Error)
         case updateHabitStart(id: Int)
         case updateHabitSuccess(habbit: HabitDataModel)
@@ -120,17 +120,17 @@ extension HabitManager {
         var parameters: [String: Any]? {
             switch self {
             case .getHabitsStart(let userId):
-                ["user_id": userId.description]
-            case .getHabitStart(id: let id, userId: let userId):
-                ["id": id.description, "user_id": userId.description]
+                ["user_id": userId]
+            case .getHabitStart(id: let id, userId: let userId), .deleteHabitStart(id: let id, userId: let userId), .deleteHabitSuccess(id: let id, userId: let userId):
+                ["id": id, "user_id": userId]
             case .getHabitsSuccess(let habits):
                 ["habits_count": habits.count]
             case .createHabitSuccess(let habit), .updateHabitSuccess(let habit), .getHabitSuccess(let habit):
                 habit.eventParameters
             case .getHabitsFail(let error), .createHabitFail(let error):
                 ["error": error.localizedDescription]
-            case .deleteHabitStart(id: let id), .deleteHabitSuccess(id: let id), .updateHabitStart(id: let id):
-                ["id": id.description]
+            case .updateHabitStart(id: let id):
+                ["id": id]
             default:
                 nil
             }

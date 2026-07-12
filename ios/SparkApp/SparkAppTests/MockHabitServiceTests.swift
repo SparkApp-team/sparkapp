@@ -79,7 +79,7 @@ struct MockHabitServiceTests {
     func updateMutatesStoredHabit() async throws {
         let sut = MockHabitService()
 
-        let updated = try await sut.updateHabit(id: 2, name: "Squats", frequency: "weekly")
+        let updated = try await sut.updateHabit(id: 2, userId: 1, name: "Squats", frequency: "weekly")
 
         #expect(updated.id == 2)
         #expect(updated.name == "Squats")
@@ -95,7 +95,7 @@ struct MockHabitServiceTests {
         let sut = MockHabitService()
 
         await #expect(throws: (any Error).self) {
-            try await sut.updateHabit(id: 999, name: "Nope", frequency: "daily")
+            try await sut.updateHabit(id: 999, userId: 1, name: "Nope", frequency: "daily")
         }
     }
 
@@ -106,7 +106,7 @@ struct MockHabitServiceTests {
         let sut = MockHabitService()
         let countBefore = sut.habits.count
 
-        try await sut.deleteHabbit(id: 1)
+        try await sut.deleteHabbit(id: 1, userId: 1)
 
         #expect(sut.habits.count == countBefore - 1)
         #expect(sut.habits.contains { $0.id == 1 } == false)
@@ -120,7 +120,7 @@ struct MockHabitServiceTests {
         let countBefore = sut.habits.count
 
         await #expect(throws: (any Error).self) {
-            try await sut.deleteHabbit(id: 999)
+            try await sut.deleteHabbit(id: 999, userId: 1)
         }
         #expect(sut.habits.count == countBefore)
     }
@@ -142,10 +142,10 @@ struct MockHabitServiceTests {
         }
         // Uses an existing id so the not-found guard passes and the error path is reached.
         await #expect(throws: URLError.self) {
-            _ = try await sut.updateHabit(id: 1, name: "X", frequency: "daily")
+            _ = try await sut.updateHabit(id: 1, userId: 1, name: "X", frequency: "daily")
         }
         await #expect(throws: URLError.self) {
-            try await sut.deleteHabbit(id: 1)
+            try await sut.deleteHabbit(id: 1, userId: 1)
         }
     }
 
