@@ -8,6 +8,8 @@ import com.sparkapp.sparkapi.dto.CreateHabitRequest;
 import com.sparkapp.sparkapi.dto.HabitResponse;
 import com.sparkapp.sparkapi.service.HabitService;
 
+import jakarta.validation.Valid;
+
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -30,7 +32,7 @@ public class HabitController {
     
     @PostMapping
     public HabitResponse createHabit(@RequestHeader("X-USER-ID") String userIdHeader,
-                                    @RequestBody CreateHabitRequest createHabitRequest) {
+                                    @Valid @RequestBody CreateHabitRequest createHabitRequest) {
         
         return habitService.createHabit(userIdHeader, createHabitRequest);
     }

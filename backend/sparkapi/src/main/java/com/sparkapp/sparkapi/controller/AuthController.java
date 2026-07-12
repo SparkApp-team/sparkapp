@@ -10,6 +10,8 @@ import com.sparkapp.sparkapi.dto.RegisterUserRequest;
 import com.sparkapp.sparkapi.dto.UserResponse;
 import com.sparkapp.sparkapi.service.AuthService;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
@@ -21,11 +23,11 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public UserResponse register(@RequestBody RegisterUserRequest registerUserRequest) {
+    public UserResponse register(@Valid @RequestBody RegisterUserRequest registerUserRequest) {
         return authService.registerUser(registerUserRequest);
     }
     @PostMapping("/login")
-    public UserResponse login(@RequestBody LoginUserRequest loginUserRequest) {
+    public UserResponse login(@Valid @RequestBody LoginUserRequest loginUserRequest) {
         return authService.loginUser(loginUserRequest);
     }
     
