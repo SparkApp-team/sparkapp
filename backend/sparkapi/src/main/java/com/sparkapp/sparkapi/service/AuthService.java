@@ -2,6 +2,7 @@ package com.sparkapp.sparkapi.service;
 
 import java.util.Optional;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.sparkapp.sparkapi.dto.LoginUserRequest;
@@ -15,13 +16,14 @@ import com.sparkapp.sparkapi.model.User;
 
 @Service
 public class AuthService {
-    private final FakeHashService fakeHashService;
+
+    private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
     private final FakeAuthService fakeAuthService;
-    public AuthService(FakeHashService fakeHashService, UserRepository userRepository, FakeAuthService fakeAuthService){
-        this.fakeHashService = fakeHashService;
+    public AuthService(UserRepository userRepository, FakeAuthService fakeAuthService, PasswordEncoder passwordEncoder){
         this.userRepository = userRepository;
         this.fakeAuthService = fakeAuthService;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public UserResponse registerUser(RegisterUserRequest request) {
@@ -30,13 +32,13 @@ public class AuthService {
         }
 
         Optional<User> userOptional = userRepository.findByEmail(request.email());
-        if (!userOptional.isEmpty()) {
+        if (userOptional.isPresent()) {
             throw new EmailAlreadyRegisteredException();
         }
 
         User user = new User();
         user.setEmail(request.email());
-        user.setPasswordHash(fakeHashService.hashPassword(request.password()));
+        user.setPasswordHash(passwordEncoder.encode(request.password()));
 
         User savedUser = userRepository.save(user);
 
@@ -55,9 +57,8 @@ public class AuthService {
         }
 
         User user = userOptional.get();
-        String passwordHash = fakeHashService.hashPassword(request.password());
 
-        if (!user.getPasswordHash().equals(passwordHash)) {
+        if (!passwordEncoder.matches(request.password(), user.getPasswordHash())) {
             throw new InvalidCredentialsException();
         }
 

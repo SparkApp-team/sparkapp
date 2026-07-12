@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.sparkapp.sparkapi.dto.LoginUserRequest;
 import com.sparkapp.sparkapi.dto.RegisterUserRequest;
@@ -27,7 +28,7 @@ class AuthServiceTest {
     private UserRepository userRepository;
 
     @Mock
-    private FakeHashService fakeHashService;
+    private PasswordEncoder passwordEncoder;
 
     @Mock
     private FakeAuthService fakeAuthService;
@@ -37,7 +38,7 @@ class AuthServiceTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        authService = new AuthService(fakeHashService, userRepository,  fakeAuthService);
+        authService = new AuthService(userRepository,  fakeAuthService, passwordEncoder);
     }
 
     @Test
@@ -55,7 +56,7 @@ class AuthServiceTest {
             () -> authService.registerUser(request)
         );
 
-        verifyNoInteractions(userRepository, fakeHashService);
+        verifyNoInteractions(userRepository, passwordEncoder);
     }
 
     @Test
@@ -75,7 +76,7 @@ class AuthServiceTest {
         );
 
         verify(userRepository).findByEmail("test@example.com");
-        verifyNoInteractions(fakeHashService);
+        verifyNoInteractions(passwordEncoder);
         verify(userRepository, never()).save(any(User.class));
     }
 
@@ -89,7 +90,7 @@ class AuthServiceTest {
 
         when(userRepository.findByEmail("test@example.com"))
             .thenReturn(Optional.empty());
-        when(fakeHashService.hashPassword("password123"))
+        when(passwordEncoder.encode("password123"))
             .thenReturn("hashed-password");
 
         when(fakeAuthService.getCurrentUserToken(1L))
@@ -113,49 +114,80 @@ class AuthServiceTest {
         assertEquals("test@example.com", savedUser.getEmail());
         assertEquals("hashed-password", savedUser.getPasswordHash());
 
-        verify(fakeHashService).hashPassword("password123");
+        verify(passwordEncoder).encode("password123");
     }
 
     @Test
     void loginUserThrowsWhenEmailIsNotRegistered() {
-        var request = new LoginUserRequest("missing@example.com", "password123");
-        when(userRepository.findByEmail("missing@example.com")).thenReturn(Optional.empty());
+        var request = new LoginUserRequest(
+            "missing@example.com",
+            "password123"
+        );
+
+        when(userRepository.findByEmail("missing@example.com"))
+            .thenReturn(Optional.empty());
 
         assertThrows(InvalidCredentialsException.class, () -> authService.loginUser(request));
 
-        verifyNoInteractions(fakeHashService, fakeAuthService);
+        verifyNoInteractions(passwordEncoder, fakeAuthService);
     }
 
     @Test
     void loginUserThrowsWhenPasswordDoesNotMatch() {
-        var request = new LoginUserRequest("test@example.com", "wrong-password");
+        var request = new LoginUserRequest(
+            "test@example.com",
+            "wrong-password"
+        );
+
         User user = new User();
         user.setId(1L);
         user.setEmail("test@example.com");
-        user.setPasswordHash("correct-hash");
+        user.setPasswordHash("encoded-password");
 
-        when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(user));
-        when(fakeHashService.hashPassword("wrong-password")).thenReturn("wrong-hash");
+        when(userRepository.findByEmail("test@example.com"))
+            .thenReturn(Optional.of(user));
 
-        assertThrows(InvalidCredentialsException.class, () -> authService.loginUser(request));
+        when(passwordEncoder.matches("wrong-password", "encoded-password"))
+            .thenReturn(false);
+
+        assertThrows(
+            InvalidCredentialsException.class,
+            () -> authService.loginUser(request)
+        );
+
+        verify(userRepository).findByEmail("test@example.com");
+        verify(passwordEncoder).matches("wrong-password", "encoded-password");
         verifyNoInteractions(fakeAuthService);
     }
 
     @Test
     void loginUserReturnsTokenAndEmailWhenCredentialsAreValid() {
-        var request = new LoginUserRequest("test@example.com", "password123");
+        var request = new LoginUserRequest(
+            "test@example.com",
+            "password123"
+        );
+
         User user = new User();
         user.setId(1L);
         user.setEmail("test@example.com");
-        user.setPasswordHash("hashed-password");
+        user.setPasswordHash("encoded-password");
 
-        when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(user));
-        when(fakeHashService.hashPassword("password123")).thenReturn("hashed-password");
-        when(fakeAuthService.getCurrentUserToken(1L)).thenReturn(1L);
+        when(userRepository.findByEmail("test@example.com"))
+            .thenReturn(Optional.of(user));
+
+        when(passwordEncoder.matches("password123", "encoded-password"))
+            .thenReturn(true);
+
+        when(fakeAuthService.getCurrentUserToken(1L))
+            .thenReturn(1L);
 
         var response = authService.loginUser(request);
 
         assertEquals(1L, response.id());
         assertEquals("test@example.com", response.email());
+
+        verify(userRepository).findByEmail("test@example.com");
+        verify(passwordEncoder).matches("password123", "encoded-password");
+        verify(fakeAuthService).getCurrentUserToken(1L);
     }
 }
