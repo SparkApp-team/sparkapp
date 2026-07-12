@@ -88,7 +88,7 @@ struct RegisterView: View {
     }
 }
 
-#Preview {
+#Preview("Main") {
     NavigationStack {
         RegisterView(viewModel: RegisterViewModel(container: DevPreview.shared.container))
             .previewEnvironment()

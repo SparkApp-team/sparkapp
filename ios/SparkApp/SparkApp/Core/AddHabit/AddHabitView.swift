@@ -21,7 +21,7 @@ struct AddHabitView: View {
                     TextField("Name", text: $viewModel.name)
 
                     Picker("Frequency", selection: $viewModel.frequency) {
-                        ForEach(AddHabitViewModel.Frequency.allCases) { frequency in
+                        ForEach(HabitFrequency.allCases) { frequency in
                             Text(frequency.title).tag(frequency)
                         }
                     }

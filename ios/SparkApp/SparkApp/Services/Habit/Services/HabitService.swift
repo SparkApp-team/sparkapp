@@ -8,6 +8,9 @@
 import SwiftUI
 
 protocol HabitService: Sendable {
-    func createHabit(name: String, frequency: String, userId: String) async throws -> HabitDataModel
-    func getHabitsForUser(userId: String) async throws -> [HabitDataModel]
+    func createHabit(name: String, frequency: String, userId: Int) async throws -> HabitDataModel
+    func deleteHabbit(id: Int) async throws
+    func updateHabit(id: Int, name: String, frequency: String) async throws -> HabitDataModel
+    func getHabit(id: Int, userId: Int) async throws -> HabitDataModel
+    func getHabitsForUser(userId: Int) async throws -> [HabitDataModel]
 }

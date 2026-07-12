@@ -156,8 +156,8 @@ struct TestAccount: Identifiable {
     let password: String
 
     static let presets: [TestAccount] = [
-        TestAccount(label: "User 1", email: "example@gmail.com", password: "pass1234!"),
-        TestAccount(label: "User 2", email: "user2@gmail.com", password: "pass1234!"),
+        TestAccount(label: "User 1", email: "user1@example.com", password: "pass1234!"),
+        TestAccount(label: "User 2", email: "user2@example.com", password: "pass1234!"),
     ]
 }
 
