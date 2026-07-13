@@ -27,8 +27,11 @@ private struct DevMenuToolbar: ViewModifier {
                     Button {
                         showDevMenu = true
                     } label: {
-                        Label("Dev Menu", systemImage: "hammer.fill")
+                        Image(systemName: "hammer.fill")
+                            .font(.title3)
+                            .foregroundStyle(.primary)
                     }
+                    .tint(.primary)
                 }
             }
             .sheet(isPresented: $showDevMenu) {
