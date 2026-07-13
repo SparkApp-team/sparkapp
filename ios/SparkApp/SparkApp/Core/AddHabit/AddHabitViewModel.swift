@@ -13,20 +13,30 @@ class AddHabitViewModel {
     private let habitManager: HabitManager
     private let userManager: UserManager
     private let logManager: LogManager
-    
+    private let existingHabit: HabitDataModel?
+
     var name: String = ""
     var frequency: HabitFrequency = .daily
     private(set) var isSaving: Bool = false
     private(set) var errorMessage: String?
 
+    var isEditing: Bool {
+        existingHabit != nil
+    }
+
     var canSave: Bool {
         !name.trimmingCharacters(in: .whitespaces).isEmpty
     }
 
-    init(container: DependencyContainer) {
+    init(container: DependencyContainer, habit: HabitDataModel? = nil) {
         self.habitManager = container.resolve(HabitManager.self)!
         self.userManager = container.resolve(UserManager.self)!
         self.logManager = container.resolve(LogManager.self)!
+        self.existingHabit = habit
+        if let habit {
+            self.name = habit.name
+            self.frequency = HabitFrequency(rawValue: habit.frequency) ?? .daily
+        }
     }
 
     func save(onSuccess: @escaping () -> Void) {
@@ -34,7 +44,7 @@ class AddHabitViewModel {
             errorMessage = "No signed-in user."
             return
         }
-        
+
         let name = name.trimmingCharacters(in: .whitespacesAndNewlines)
 
         Task {
@@ -42,11 +52,20 @@ class AddHabitViewModel {
             defer { isSaving = false }
             do {
                 errorMessage = nil
-                _ = try await habitManager.createHabit(
-                    name: name,
-                    frequency: frequency.rawValue,
-                    userId: userId
-                )
+                if let existingHabit {
+                    _ = try await habitManager.updateHabit(
+                        id: existingHabit.id,
+                        userId: userId,
+                        name: name,
+                        frequency: frequency.rawValue
+                    )
+                } else {
+                    _ = try await habitManager.createHabit(
+                        name: name,
+                        frequency: frequency.rawValue,
+                        userId: userId
+                    )
+                }
                 onSuccess()
             } catch {
                 errorMessage = error.localizedDescription
