@@ -10,6 +10,7 @@ import SwiftUI
 struct AddHabitView: View {
     @Environment(\.dismiss) private var dismiss
     @State var viewModel: AddHabitViewModel
+    @FocusState private var isNameFocused: Bool
 
     /// Called after a habit is successfully created, so the caller can reload.
     let onCreated: () -> Void
@@ -19,6 +20,7 @@ struct AddHabitView: View {
             Form {
                 Section("Habit") {
                     TextField("Name", text: $viewModel.name)
+                        .focused($isNameFocused)
 
                     Picker("Frequency", selection: $viewModel.frequency) {
                         ForEach(HabitFrequency.allCases) { frequency in
@@ -35,7 +37,9 @@ struct AddHabitView: View {
                     }
                 }
             }
-            .navigationTitle("New Habit")
+            .scrollContentBackground(.hidden)
+            .background(AppColors.P2.background)
+            .navigationTitle(viewModel.isEditing ? "Edit Habit" : "New Habit")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
@@ -51,6 +55,11 @@ struct AddHabitView: View {
                     .disabled(!viewModel.canSave || viewModel.isSaving)
                 }
             }
+            .toolbarBackground(AppColors.P2.background, for: .navigationBar)
+            .toolbarBackground(.visible, for: .navigationBar)
+        }
+        .onAppear {
+            isNameFocused = true
         }
     }
 }

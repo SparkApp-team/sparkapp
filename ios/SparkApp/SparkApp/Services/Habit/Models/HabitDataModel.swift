@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct HabitDataModel: Hashable, Codable {
+struct HabitDataModel: Hashable, Codable, Identifiable {
     let id: Int
     let userId: Int
     var name: String

@@ -12,6 +12,7 @@ struct HabitsListView: View {
     @Environment(DependencyContainer.self) private var container
     @State var viewModel: HabitsListViewModel
     @State private var showAddHabit: Bool = false
+    @State private var habitToEdit: HabitDataModel?
 
     var body: some View {
         NavigationStack {
@@ -46,7 +47,12 @@ struct HabitsListView: View {
             }
             .devMenuToolbar()
             .sheet(isPresented: $showAddHabit) {
-                addHabitSheet
+                addHabitSheet(habit: nil)
+                    .habitFormPresentation()
+            }
+            .sheet(item: $habitToEdit) { habit in
+                addHabitSheet(habit: habit)
+                    .habitFormPresentation()
             }
             .task {
                 await viewModel.checkServerHealth()
@@ -76,6 +82,10 @@ struct HabitsListView: View {
                 .listRowBackground(
                     AppColors.P2.secondaryBackground
                 )
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    habitToEdit = habit
+                }
                 .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                     Button(role: .destructive) {
                         Task {
@@ -126,10 +136,19 @@ struct HabitsListView: View {
         }
     }
 
-    private var addHabitSheet: some View {
-        AddHabitView(viewModel: AddHabitViewModel(container: container)) {
+    private func addHabitSheet(habit: HabitDataModel?) -> some View {
+        AddHabitView(viewModel: AddHabitViewModel(container: container, habit: habit)) {
             Task { await viewModel.loadHabits() }
         }
+    }
+}
+
+private extension View {
+    func habitFormPresentation() -> some View {
+        self
+            .presentationDetents([.height(260)])
+            .presentationBackground(AppColors.P2.background)
+            .presentationDragIndicator(.visible)
     }
 }
 
