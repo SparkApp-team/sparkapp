@@ -68,7 +68,7 @@ Response fields:
 ### `POST /auth/register`
 
 Purpose:
-Registers a user when the supplied password and password confirmation match. The backend hashes the password through the current fake hash service and persists only the resulting hash.
+Registers a user when the supplied password and password confirmation match. Spring Security's `PasswordEncoder` encodes the password, and only the encoded password is persisted.
 
 Request:
 
@@ -86,7 +86,7 @@ Example request:
 Request fields:
 
 - `email` (`string`, required): Nonblank, valid email address.
-- `password` (`string`, required): Nonblank password containing at least 8 characters. Only its generated hash is stored.
+- `password` (`string`, required): Nonblank password containing at least 8 characters. Only the encoded password is persisted.
 - `passwordConfirmation` (`string`, required): Nonblank repetition of `password`; it must match exactly and is not persisted.
 
 Response:
@@ -105,7 +105,7 @@ Example response:
 
 Response fields:
 
-- `id` (`string`): Generated user ID. Store this value on the client and send it as `X-USER-ID` for fake-auth endpoints.
+- `id` (`number`): Generated user ID. Store this value on the client and send it as `X-USER-ID` for fake-auth endpoints.
 - `email` (`string`): User email.
 
 Error responses:
@@ -432,4 +432,4 @@ Response fields:
 - This API is in an early stage and currently exposes health checks, registration, login, current-user lookup, and habit CRUD operations.
 - User and habit records are persisted through JPA.
 - Authentication is currently fake: `X-USER-ID` is parsed as the current numeric user ID.
-- Password hashing is currently fake: the fake hash service reverses the submitted password string.
+- Spring Security's `PasswordEncoder` encodes passwords, and only encoded passwords are persisted.

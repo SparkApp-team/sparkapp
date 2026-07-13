@@ -11,7 +11,7 @@ GET {{baseUrl}}/health
 
 ### Register first user
 # Expected: 200 OK
-# Response contains userId "1" on a fresh database.
+# Response contains id 1 on a fresh database.
 POST {{baseUrl}}/auth/register
 Content-Type: application/json
 
@@ -23,7 +23,7 @@ Content-Type: application/json
 
 ### Register second user
 # Expected: 200 OK
-# Response contains userId "2" on a fresh database.
+# Response contains id 2 on a fresh database.
 POST {{baseUrl}}/auth/register
 Content-Type: application/json
 
@@ -101,7 +101,7 @@ Content-Type: application/json
 
 ### Login first user
 # Expected: 200 OK
-# Use returned userId as X-USER-ID while fake auth is in place.
+# Use returned id as X-USER-ID while fake auth is in place.
 POST {{baseUrl}}/auth/login
 Content-Type: application/json
 
