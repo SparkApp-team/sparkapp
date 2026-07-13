@@ -43,7 +43,10 @@ struct AddHabitView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    Button("Cancel") { dismiss() }
+                    Button("Cancel") {
+                        dismiss()
+                    }
+                    .tint(.primary)
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Save") {
@@ -52,6 +55,7 @@ struct AddHabitView: View {
                             dismiss()
                         }
                     }
+                    .tint(.primary)
                     .disabled(!viewModel.canSave || viewModel.isSaving)
                 }
             }

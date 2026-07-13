@@ -123,7 +123,8 @@ struct HabitsListView: View {
         Button {
             Task { await viewModel.checkServerHealth() }
         } label: {
-            Label("Health", systemImage: "checkmark.icloud.fill")
+            Image(systemName: "checkmark.icloud.fill")
+                .font(.title2)
         }
         .tint(viewModel.health.status.color)
     }
@@ -132,8 +133,11 @@ struct HabitsListView: View {
         Button {
             showAddHabit = true
         } label: {
-            Label("Add Habit", systemImage: "plus")
+            Image(systemName: "plus")
+                .font(.title2)
+                .foregroundStyle(.primary)
         }
+        .tint(.primary)
     }
 
     private func addHabitSheet(habit: HabitDataModel?) -> some View {
