@@ -24,31 +24,40 @@ struct SparkHabitService: HabitService {
         return try await client.send(endpoint)
     }
     
-    // MOCK
-    func deleteHabbit(id: Int) async throws {
-        throw NSError(
-            domain: "Not ready",
-            code: 0,
-            userInfo: [NSLocalizedDescriptionKey: "Enpoint is not ready."]
+    func deleteHabbit(id: Int, userId: Int) async throws {
+        let header = ["X-USER-ID": String(userId)]
+
+        let endpoint = Endpoint(
+            path: "habits/\(id)",
+            method: .delete,
+            headers: header
         )
+
+        try await client.send(endpoint)
     }
     
-    // MOCK
-    func updateHabit(id: Int, name: String, frequency: String) async throws -> HabitDataModel {
-        throw NSError(
-            domain: "Not ready",
-            code: 0,
-            userInfo: [NSLocalizedDescriptionKey: "Enpoint is not ready."]
+    func updateHabit(id: Int, userId: Int, name: String, frequency: String) async throws -> HabitDataModel {
+        let header = ["X-USER-ID": String(userId)]
+
+        let endpoint = Endpoint(
+            path: "habits/\(id)",
+            method: .put,
+            headers: header
         )
+
+        return try await client.send(endpoint)
     }
     
-    // MOCK
     func getHabit(id: Int, userId: Int) async throws -> HabitDataModel {
-        throw NSError(
-            domain: "Not ready",
-            code: 0,
-            userInfo: [NSLocalizedDescriptionKey: "Enpoint is not ready."]
+        let header = ["X-USER-ID": String(userId)]
+
+        let endpoint = Endpoint(
+            path: "habits/\(id)",
+            method: .get,
+            headers: header
         )
+
+        return try await client.send(endpoint)
     }
     
     func getHabitsForUser(userId: Int) async throws -> [HabitDataModel] {

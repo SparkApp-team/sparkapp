@@ -67,11 +67,11 @@ final class SpyHabitService: HabitService {
         return .mock
     }
 
-    func deleteHabbit(id: Int) async throws {
+    func deleteHabbit(id: Int, userId: Int) async throws {
         deleteCallCount += 1
     }
 
-    func updateHabit(id: Int, name: String, frequency: String) async throws -> HabitDataModel {
+    func updateHabit(id: Int, userId: Int, name: String, frequency: String) async throws -> HabitDataModel {
         updateCallCount += 1
         return .mock
     }
