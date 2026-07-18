@@ -179,6 +179,46 @@ GET {{baseUrl}}/users/me
 GET {{baseUrl}}/users/me
 X-USER-ID: not-a-number
 
+### Update current user
+# Expected: 200 OK with roman.updated@example.com.
+PATCH {{baseUrl}}/users/me
+Content-Type: application/json
+X-USER-ID: {{userId}}
+
+{
+  "email": "roman.updated@example.com"
+}
+
+### Update current user with invalid email
+# Expected: 400 Bad Request with fieldErrors.email set to "Email must be valid".
+PATCH {{baseUrl}}/users/me
+Content-Type: application/json
+X-USER-ID: {{userId}}
+
+{
+  "email": "not-an-email"
+}
+
+### Update current user with blank email
+# Expected: 400 Bad Request with fieldErrors.email set to "Email is required".
+PATCH {{baseUrl}}/users/me
+Content-Type: application/json
+X-USER-ID: {{userId}}
+
+{
+  "email": ""
+}
+
+### Update current user with another user's email
+# Expected: 409 Conflict because second@example.com belongs to user 2.
+PATCH {{baseUrl}}/users/me
+Content-Type: application/json
+X-USER-ID: {{userId}}
+
+{
+  "email": "second@example.com"
+}
+
 ### Create habit for first user
 # Expected: 201 Created
 POST {{baseUrl}}/habits
@@ -313,4 +353,19 @@ X-USER-ID: {{userId}}
 ### Get deleted habit
 # Expected: 404 Not Found after the delete request above.
 GET {{baseUrl}}/habits/{{habitId}}
+X-USER-ID: {{userId}}
+
+### Delete current user
+# Expected: 204 No Content. Also deletes the user's remaining habits.
+DELETE {{baseUrl}}/users/me
+X-USER-ID: {{userId}}
+
+### Get deleted current user
+# Expected: 404 Not Found after deleting the user above.
+GET {{baseUrl}}/users/me
+X-USER-ID: {{userId}}
+
+### List deleted user's habits
+# Expected: 200 OK with an empty list, confirming associated habits were deleted.
+GET {{baseUrl}}/habits
 X-USER-ID: {{userId}}
