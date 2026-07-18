@@ -200,6 +200,73 @@ Error responses:
 - `404 Not Found`: No user exists for the current fake-auth user ID. The response message is `"User not found"` and `fieldErrors` is empty.
 
 
+### `PATCH /users/me`
+
+Purpose:
+Updates the email address of the current user identified by the temporary fake-auth `X-USER-ID` header.
+
+Request:
+
+- Content-Type: `application/json`
+- Required header: `X-USER-ID`
+
+Example request:
+
+```json
+{
+  "email": "updated@email.com"
+}
+```
+
+Request fields:
+
+- `email` (`string`, required): Nonblank, valid email address that is not registered to another user.
+
+Response:
+
+- Status: `200 OK`
+- Content-Type: `application/json`
+
+Example response:
+
+```json
+{
+  "id": 1,
+  "email": "updated@email.com"
+}
+```
+
+Response fields:
+
+- `id` (`number`): Current user ID.
+- `email` (`string`): Updated user email.
+
+Error responses:
+
+- `400 Bad Request`: The email is blank or invalid.
+- `404 Not Found`: No user exists for the current fake-auth user ID.
+- `409 Conflict`: The email is already registered to another user.
+
+
+### `DELETE /users/me`
+
+Purpose:
+Deletes the current user and all habits owned by that user.
+
+Request:
+
+- Required header: `X-USER-ID`
+
+Response:
+
+- Status: `204 No Content`
+- Body: none
+
+Error responses:
+
+- `404 Not Found`: No user exists for the current fake-auth user ID. No habits or user record are deleted.
+
+
 ### `POST /habits`
 
 Purpose:
@@ -429,7 +496,7 @@ Response fields:
 
 ## Notes
 
-- This API is in an early stage and currently exposes health checks, registration, login, current-user lookup, and habit CRUD operations.
+- This API is in an early stage and currently exposes health checks, registration, login, current-user CRUD operations, and habit CRUD operations.
 - User and habit records are persisted through JPA.
 - Authentication is currently fake: `X-USER-ID` is parsed as the current numeric user ID.
 - Spring Security's `PasswordEncoder` encodes passwords, and only encoded passwords are persisted.
